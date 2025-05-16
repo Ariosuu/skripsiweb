@@ -4,7 +4,7 @@
       <p color ='#C5C3C6' class="text-h6 font-weight-bold pl-8">Home</p>
       <v-spacer></v-spacer>
       <v-avatar size="32">
-        <img src="https://randomuser.me/api/portraits/men/85.jpg" alt="User" />
+        
       </v-avatar>
       <v-btn icon>
         <v-icon color='#46494C'>mdi-logout</v-icon>
@@ -12,10 +12,10 @@
     </v-app-bar>
 
     <v-container fluid class="pa-0">
-      <!-- Welcome Section -->
+      <!-- blue bar -->
       <v-sheet color="#207a9a" class="d-flex align-center pa-4 pl-10" height="200">
         <v-avatar size="100" rounded='0' class="mr-4">
-          <img src="https://randomuser.me/api/portraits/men/85.jpg" alt="User" />
+          
         </v-avatar>
         <div class="white--text">
           <div class="text-h6 font-weight-bold">Welcome back,</div>
@@ -26,23 +26,22 @@
         </div>
       </v-sheet>
 
-      <!-- Main Grid -->
       <v-row class="pa-4" dense>
-        <!-- News Card -->
+        <!-- news -->
         <v-col cols="12" sm="6" md="3">
           <v-card height="380" class="d-flex align-center justify-center grey darken-3 white--text">
             NEWS
           </v-card>
         </v-col>
 
-        <!-- Calendar Card -->
+        <!-- calendar -->
         <v-col cols="12" sm="6" md="3">
           <v-card height="380" class="d-flex align-center justify-center grey darken-3 white--text">
             CALENDAR
           </v-card>
         </v-col>
 
-        <!-- Clock In/Out Card -->
+        <!-- clock in/out -->
         <v-col cols="12" sm="6" md="6">
           <v-row dense class="fill-height" style="flex-direction: column">
             <v-col>
@@ -72,7 +71,7 @@
           </v-row>
         </v-col>
 
-        <!-- Outlook Inbox Card -->
+        <!-- outlook -->
         <v-col cols="12" sm="6" md="6">
           <v-card class="pa-4 mt-4" height="120">
             <div class="text-subtitle-2 font-weight-bold mb-2">OUTLOOK INBOX</div>
@@ -89,7 +88,7 @@
           </v-card>
         </v-col>
 
-        <!-- Upcoming Training Card -->
+        <!-- upcoming training -->
         <v-col cols="12" sm="6" md="6">
           <v-card class="pa-4 mt-4" height="120">
             <div class="text-subtitle-2 font-weight-bold mb-2">UPCOMING TRAINING</div>
@@ -112,7 +111,7 @@
 <script>
 import { defineComponent } from 'vue';
 
-// Components
+
 
 export default defineComponent({
   name: 'HomeView',

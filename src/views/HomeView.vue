@@ -1,5 +1,5 @@
 <template>
-  <div style="background-color: #c5c3c6; min-height: 100vh">
+  <div style="background-color: #c5c3c6; min-height: 100%">
     <v-app-bar color="#C5C3C6" flat height="64">
       <p color="#C5C3C6" class="text-h6 font-weight-bold pl-8">Home</p>
       <v-spacer></v-spacer>

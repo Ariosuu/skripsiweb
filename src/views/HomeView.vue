@@ -1,16 +1,10 @@
-<template>
+<template></template>
 
-</template>
-
-<script>
-import { defineComponent } from 'vue';
-
-// Components
-
-export default defineComponent({
-  name: 'HomeView',
-
-  components: {
-  },
-});
+<script setup>
+import {
+  mdiChevronRight,
+  mdiLoginVariant,
+  mdiLogout,
+  mdiLogoutVariant,
+} from "@mdi/js";
 </script>

@@ -1,13 +1,12 @@
 <script setup>
-  import SideBar from "./components/SideBar.vue"
+import SideBar from "./components/SideBar.vue";
 </script>
 
 <template>
   <v-app>
-    <SideBar/>
+    <SideBar />
     <v-main>
-      <router-view/>
+      <router-view />
     </v-main>
   </v-app>
 </template>
-

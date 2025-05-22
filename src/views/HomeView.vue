@@ -29,6 +29,8 @@
         </div>
       </v-sheet>
 
+      <!-- CONTENT -->
+
       <v-row class="pa-4" dense>
         <!-- news -->
         <v-col cols="12" sm="6" md="3" class="pa-2">
@@ -73,7 +75,7 @@
                   </v-col>
                   <v-divider vertical />
                   <v-col cols="6" class="d-flex justify-center align-center">
-                    <v-btn variant="flat" size="x-large" block>
+                    <v-btn variant="plain" size="x-large" block>
                       <v-icon
                         color="#1985A1"
                         slot="prepend-icon"

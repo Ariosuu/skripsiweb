@@ -32,50 +32,65 @@
       <v-row class="pa-4" dense>
         <!-- news -->
         <v-col cols="12" sm="6" md="3" class="pa-2">
-          <v-card
-            height="380"
-            class="d-flex align-center justify-center grey darken-3 white--text"
-          >
+          <v-card height="300" class="d-flex align-center justify-center">
             NEWS
           </v-card>
         </v-col>
 
         <!-- calendar -->
         <v-col cols="12" sm="6" md="3" class="pa-2">
-          <v-card
-            height="380"
-            class="d-flex align-center justify-center grey darken-3 white--text"
-          >
+          <v-card height="300" class="d-flex align-center justify-center">
             CALENDAR
           </v-card>
         </v-col>
 
         <!-- clock in/out -->
-        <v-col cols="12" sm="6" md="6" class="pa-2">
-          <v-row dense class="fill-height" no-gutters>
+        <v-col cols="12" md="6" class="pa-2">
+          <v-row no-gutters class="fill-height">
             <v-col cols="12" class="pb-4">
               <v-card class="pa-4 fill-height">
-                <v-row
-                  align="center"
-                  class="py-5"
-                  justify="space-around"
-                  no-gutters
-                >
-                  <v-btn
-                    :prepend-icon="mdiLoginVariant"
-                    class="d-flex align-center"
-                  >
-                    <span class="font-weight-bold">Clock In</span>
-                  </v-btn>
-                  <v-btn
-                    :prepend-icon="mdiLogoutVariant"
-                    class="d-flex align-center"
-                  >
-                    <span class="font-weight-bold">Clock Out</span>
-                  </v-btn>
+                <v-row no-gutters>
+                  <v-col cols="6" class="d-flex justify-center align-center">
+                    <v-btn
+                      variant="plain"
+                      size="x-large"
+                      block
+                      base-color="#46494C"
+                    >
+                      <v-icon
+                        color="#1985A1"
+                        slot="prepend-icon"
+                        :icon="mdiLoginVariant"
+                        :size="30"
+                      />
+                      <div
+                        class="pa-2 text-h5 font-weight-medium"
+                        slot="default"
+                      >
+                        CLOCK IN
+                      </div>
+                    </v-btn>
+                  </v-col>
+                  <v-divider vertical />
+                  <v-col cols="6" class="d-flex justify-center align-center">
+                    <v-btn variant="flat" size="x-large" block>
+                      <v-icon
+                        color="#1985A1"
+                        slot="prepend-icon"
+                        :icon="mdiLogoutVariant"
+                        :size="30"
+                      />
+                      <div
+                        class="pa-2 text-h5 font-weight-medium"
+                        slot="default"
+                      >
+                        CLOCK OUT
+                      </div>
+                    </v-btn>
+                  </v-col>
                 </v-row>
                 <v-divider class="my-2"></v-divider>
-                <div class="text-center">
+                <div class="text-center text-subtitle-1">
                   Clocked in at: <strong>08:00 am</strong>
                 </div>
               </v-card>
@@ -87,7 +102,7 @@
                 <div class="text-subtitle-1 font-weight-bold mb-8">
                   Leave Remaining: xx Days
                 </div>
-                <v-btn color="#207a9a" dark small>Request Leave</v-btn>
+                <v-btn color="#207a9a">Request Leave</v-btn>
               </v-card>
             </v-col>
           </v-row>

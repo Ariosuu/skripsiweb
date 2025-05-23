@@ -49,10 +49,10 @@
         <!-- clock in/out -->
         <v-col cols="12" md="6" class="pa-2">
           <v-row no-gutters class="fill-height">
-            <v-col cols="12" class="pb-4">
-              <v-card class="pa-4 fill-height">
+            <v-col cols="12">
+              <v-card class="pa-4 h-auto">
                 <v-row no-gutters>
-                  <v-col cols="6" class="d-flex justify-center align-center">
+                  <v-col cols="6">
                     <v-btn
                       variant="plain"
                       size="x-large"
@@ -74,7 +74,7 @@
                     </v-btn>
                   </v-col>
                   <v-divider vertical />
-                  <v-col cols="6" class="d-flex justify-center align-center">
+                  <v-col cols="6">
                     <v-btn variant="plain" size="x-large" block>
                       <v-icon
                         color="#1985A1"
@@ -92,66 +92,73 @@
                   </v-col>
                 </v-row>
                 <v-divider class="my-2"></v-divider>
-                <div class="text-center text-subtitle-1">
-                  Clocked in at: <strong>08:00 am</strong>
-                </div>
+                <v-row>
+                  <v-col cols="12" class="text-center">
+                    Clocked in at: <br />
+                    <strong class="text-h4"> 08:00 AM</strong>
+                  </v-col>
+                </v-row>
               </v-card>
             </v-col>
+
+            <!-- LEAVE REMAINING -->
             <v-col cols="12">
-              <v-card
-                class="pa-4 d-flex flex-column justify-center fill-height"
-              >
-                <div class="text-subtitle-1 font-weight-bold mb-8">
-                  Leave Remaining: xx Days
-                </div>
-                <v-btn color="#207a9a">Request Leave</v-btn>
+              <v-card class="fill-height">
+                <v-card-title class="text-center">
+                  Leave Remaining: XX Days
+                </v-card-title>
+                <v-card-text>
+                  <v-btn size="large" color="#207a9a" block flat
+                    >Request Leave</v-btn
+                  >
+                </v-card-text>
               </v-card>
             </v-col>
           </v-row>
         </v-col>
 
-        <!-- outlook -->
+        <!-- OUTLOOK -->
         <v-col cols="12" sm="6" md="6" class="pa-2">
-          <v-card class="pa-4">
-            <div class="text-subtitle-2 font-weight-bold mb-2">
-              OUTLOOK INBOX
-            </div>
-            <v-sheet
-              color="grey lighten-3"
-              class="pa-4 d-flex justify-space-between align-center"
-              rounded
-            >
-              <div>
-                Skibidi Gyatt Rizz Pt 2 Announced<br />
-                <a href="#" class="text--primary font-weight-bold"
-                  >ABSOLUTE MUST ATTEND [CLICK HERE]</a
-                >
-              </div>
-              <div class="text-right grey--text text--darken-1">
-                Thurs<br />
-                15:00
-              </div>
-            </v-sheet>
+          <v-card>
+            <v-card-title>OUTLOOK INBOX</v-card-title>
+            <v-card-text>
+              <v-sheet
+                color="grey lighten-3"
+                class="pa-4 d-flex justify-space-between align-center"
+                rounded
+              >
+                <div>
+                  Skibidi Gyatt Rizz Pt 2 Announced<br />
+                  <a href="#" class="text--primary font-weight-bold"
+                    >ABSOLUTE MUST ATTEND [CLICK HERE]</a
+                  >
+                </div>
+                <div class="text-right grey--text text--darken-1">
+                  Thurs<br />
+                  15:00
+                </div>
+              </v-sheet>
+            </v-card-text>
           </v-card>
         </v-col>
 
         <!-- upcoming training -->
         <v-col cols="12" sm="6" md="6" class="pa-2">
-          <v-card class="pa-4">
-            <div class="text-subtitle-2 font-weight-bold mb-2">
-              UPCOMING TRAINING
-            </div>
-            <v-sheet
-              color="grey lighten-3"
-              class="pa-4 d-flex justify-space-between align-center"
-              rounded
-            >
-              <div>
-                Public Speaking 101<br />
-                <small>TGL/BLN/THN - ONLINE/OFFLINE</small>
-              </div>
-              <v-btn :icon="mdiChevronRight" color="#207a9a" />
-            </v-sheet>
+          <v-card>
+            <v-card-title> UPCOMING TRAINING</v-card-title>
+            <v-card-text>
+              <v-sheet
+                color="grey lighten-3"
+                class="pa-4 d-flex justify-space-between align-center"
+                rounded
+              >
+                <div>
+                  Public Speaking 101<br />
+                  <small>TGL/BLN/THN - ONLINE/OFFLINE</small>
+                </div>
+                <v-btn :icon="mdiChevronRight" size="small" color="#207a9a" />
+              </v-sheet>
+            </v-card-text>
           </v-card>
         </v-col>
       </v-row>

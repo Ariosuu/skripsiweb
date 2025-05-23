@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer color="#46494C" permanent>
+  <v-navigation-drawer color="#46494C" :permanent="mdAndUp">
     <v-list density="compact" nav>
       <v-list-item class="text-h6">Company Name</v-list-item>
       <v-divider class="pb-2" />
@@ -18,6 +18,7 @@
 
 <script setup>
 import { ref } from "vue";
+import { useDisplay } from "vuetify";
 import {
   mdiAccountCheck,
   mdiAccountGroup,
@@ -35,4 +36,6 @@ const items = ref([
   { icon: mdiFormatListBulleted, title: "Training", route: "/training" },
   { icon: mdiAccountGroup, title: "Employees", route: "/employees" },
 ]);
+
+const { mdAndUp, mdAndDown } = useDisplay();
 </script>

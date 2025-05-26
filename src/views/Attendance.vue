@@ -15,16 +15,43 @@
               <v-avatar color="surface-variant" size="x-large"> </v-avatar>
             </v-col>
             <v-col cols="9">
-              <h2 class="text-h5 mb-1">Eric Sebastian Chandra</h2>
-              <div class="text-subtitle-1">Employee</div>
+              <v-card-title>Eric Sebastian Chandra</v-card-title>
+              <v-card-subtitle>Employee</v-card-subtitle>
             </v-col>
             <v-col cols="1">
-              <v-btn color="#46494C" :prepend-icon="mdiLoginVariant"
-                >Clock In</v-btn
+              <v-btn
+                variant="plain"
+                block
+                base-color="#46494C"
+                @click="clockIn"
               >
+                <v-icon
+                  color="#1985A1"
+                  slot="prepend-icon"
+                  :icon="mdiLoginVariant"
+                  :size="30"
+                />
+                <div class="pa-2 font-weight-medium" slot="default">
+                  CLOCK IN
+                </div>
+              </v-btn>
             </v-col>
             <v-col cols="1">
-              <v-btn :prepend-icon="mdiLogoutVariant"> Clock Out</v-btn>
+              <v-btn variant="plain" block base-color="#46494C">
+                <v-icon
+                  color="#1985A1"
+                  slot="prepend-icon"
+                  :icon="mdiLoginVariant"
+                  :size="30"
+                />
+                <div
+                  class="pa-2 font-weight-medium"
+                  slot="default"
+                  @click="clockOut"
+                >
+                  CLOCK OUT
+                </div>
+              </v-btn>
             </v-col>
           </v-row>
         </v-col>
@@ -45,17 +72,13 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <th>18/2/2025</th>
-                  <th>09:00</th>
-                  <th>09:00</th>
-                  <th>On Time</th>
-                </tr>
-                <tr>
-                  <th>18/2/2025</th>
-                  <th>09:00</th>
-                  <th>09:00</th>
-                  <th>On Time</th>
+                <tr v-for="(record, index) in attendanceRecords" :key="index">
+                  <td>{{ record.date }}</td>
+                  <td>{{ record.clockedIn }}</td>
+                  <td>{{ record.clockedOut }}</td>
+                  <td>
+                    {{ record.status }}
+                  </td>
                 </tr>
               </tbody>
             </v-table>
@@ -67,6 +90,7 @@
 </template>
 
 <script setup>
+import { ref } from "vue";
 import {
   mdiChevronRight,
   mdiLoginVariant,
@@ -79,6 +103,52 @@ import {
   mdiFormatListBulleted,
   mdiHome,
 } from "@mdi/js";
+
+const attendanceRecords = ref([]);
+
+const formatDate = () => {
+  const date = new Date();
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
+const formatTime = (date) => {
+  return date.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+};
+
+const clockIn = () => {
+  const now = new Date();
+  const time = formatTime(now);
+  const hour = now.getHours();
+  const minutes = now.getMinutes();
+
+  const timeDecimal = hour + minutes / 60;
+
+  const status = timeDecimal > 9 ? "Late" : "On Time";
+
+  attendanceRecords.value.push({
+    date: formatDate(),
+    clockedIn: time,
+    clockedOut: "-",
+    status,
+  });
+};
+
+const clockOut = () => {
+  if (attendanceRecords.value.length > 0) {
+    const lastRecord =
+      attendanceRecords.value[attendanceRecords.value.length - 1];
+    if (lastRecord.clockedOut === "-") {
+      lastRecord.clockedOut = formatTime(new Date());
+    }
+  }
+};
 </script>
 
 <style scoped>

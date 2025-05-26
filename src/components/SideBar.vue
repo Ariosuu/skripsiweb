@@ -1,46 +1,24 @@
 <template>
-  <v-navigation-drawer color="#46494C" permanent>
-    <v-list>
-      <v-list-item title="Company Name"></v-list-item>
-    </v-list>
+  <v-navigation-drawer color="#46494C" :permanent="mdAndUp">
     <v-list density="compact" nav>
+      <v-list-item class="text-h6">Company Name</v-list-item>
+      <v-divider class="pb-2" />
       <v-list-item
-        to="/"
-        :prepend-icon="mdiHome"
-        title="Home"
-        value="homepage"
-      ></v-list-item>
-      <v-list-item
-        :prepend-icon="mdiCurrencyUsd"
-        title="Pay"
-        value="paypage"
-      ></v-list-item>
-      <v-list-item
-        to="/attendance"
-        :prepend-icon="mdiAccountCheck"
-        title="Attendance"
-        value="attendpage"
-      ></v-list-item>
-      <v-list-item
-        :prepend-icon="mdiClockTimeFour"
-        title="Time Off"
-        value="timeoffpage"
-      ></v-list-item>
-      <v-list-item
-        :prepend-icon="mdiFormatListBulleted"
-        title="Training"
-        value="trainingpage"
-      ></v-list-item>
-      <v-list-item
-        :prepend-icon="mdiAccountGroup"
-        title="Employees"
-        value="employeepage"
-      ></v-list-item>
+        link
+        v-for="item in items"
+        router
+        :to="item.route"
+        :prepend-icon="item.icon"
+      >
+        <v-list-item-title>{{ item.title }}</v-list-item-title>
+      </v-list-item>
     </v-list>
   </v-navigation-drawer>
 </template>
 
 <script setup>
+import { ref } from "vue";
+import { useDisplay } from "vuetify";
 import {
   mdiAccountCheck,
   mdiAccountGroup,
@@ -49,4 +27,15 @@ import {
   mdiFormatListBulleted,
   mdiHome,
 } from "@mdi/js";
+
+const items = ref([
+  { icon: mdiHome, title: "Home", route: "/" },
+  { icon: mdiCurrencyUsd, title: "Pay", route: "/pay" },
+  { icon: mdiAccountCheck, title: "Attendance", route: "/attendance" },
+  { icon: mdiClockTimeFour, title: "Time Off", route: "/timeoff" },
+  { icon: mdiFormatListBulleted, title: "Training", route: "/training" },
+  { icon: mdiAccountGroup, title: "Employees", route: "/employees" },
+]);
+
+const { mdAndUp, mdAndDown } = useDisplay();
 </script>

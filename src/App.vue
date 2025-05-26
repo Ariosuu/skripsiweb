@@ -5,7 +5,7 @@ import SideBar from "./components/SideBar.vue";
 <template>
   <v-app>
     <SideBar />
-    <v-main>
+    <v-main style="background-color: #dcdcdc; min-height: 100%">
       <router-view />
     </v-main>
   </v-app>

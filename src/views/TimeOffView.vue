@@ -15,7 +15,11 @@
               Leave Remaining : <span style="color: #1985a1">5 Days</span>
             </span>
 
-            <span><v-btn color="#1985A1" flat>Request Leave</v-btn></span>
+            <span>
+              <v-btn color="#1985A1" flat @click="leaveRequest = true">
+                Request Leave
+              </v-btn>
+            </span>
           </div>
         </v-card-title>
       </v-card>
@@ -32,6 +36,10 @@
               <v-btn icon flat size="sm">
                 <v-icon :icon="mdiEye" color="#1985A1" />
               </v-btn>
+            </template>
+
+            <template v-slot:item.status="{ value }">
+              <v-chip :color="chipColor(value)">{{ value }}</v-chip>
             </template>
           </v-data-table>
         </v-col>
@@ -59,26 +67,88 @@
       </v-row>
     </v-card-text>
   </v-card>
+
+  <v-dialog v-model="leaveRequest" width="auto">
+    <v-card width="450">
+      <v-card-title>Employee Leave Request Form</v-card-title>
+      <v-card-text class="pa-4 pt-2">
+        <v-form v-model="form">
+          <v-text-field
+            label="Employee Name"
+            v-model="request.name"
+            readonly
+            variant="outlined"
+            density="compact"
+          ></v-text-field>
+
+          <v-text-field
+            label="Position"
+            v-model="request.position"
+            readonly
+            variant="outlined"
+            density="compact"
+          ></v-text-field>
+
+          <v-autocomplete
+            label="Leave Type"
+            type="string"
+            :items="leaveType"
+            v-model="request.type"
+            variant="outlined"
+            density="compact"
+          ></v-autocomplete>
+        </v-form>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn text="Submit" color="#1985A1" variant="flat" />
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup>
 import { mdiEye, mdiLogout } from "@mdi/js";
-import { ref } from "vue";
+import { ref, reactive } from "vue";
 
+const leaveRequest = ref(false);
 const timeRequest = ref([
   {
     type: "Diddy Do It",
     from: "18/02/2025",
     to: "18/02/2025",
     notes: "Baby Powder",
+    status: "Approved",
   },
 ]);
+
+const form = ref();
+const request = reactive({
+  name: "Daniel Garyo",
+  position: "Employee",
+  type: "Sick",
+  reason: "",
+  from: "",
+  to: "",
+});
+
+const leaveType = ["Sick", "Family", "Maternity"];
 
 const headers = ref([
   { title: "Type", key: "type", align: "start" },
   { title: "From", key: "from", align: "center" },
   { title: "To", key: "to", align: "center" },
   { title: "Notes", key: "notes", align: "start" },
+  { title: "Status", key: "status", align: "center", sortable: false },
   { title: "Detail", key: "detail", align: "center", sortable: false },
 ]);
+
+const chipColor = (x) => {
+  if (x == "Approved") {
+    return "green";
+  } else if (x == "Pending") {
+    return "yellow";
+  } else if (x == "Rejected") {
+    return "red";
+  }
+};
 </script>

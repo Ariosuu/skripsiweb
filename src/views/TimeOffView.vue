@@ -110,22 +110,24 @@
             </v-col>
 
             <v-col cols="4">
-              <v-text-field
-                label="From"
+              <v-date-input
                 v-model="request.from"
+                label="From"
+                prepend-icon=""
                 variant="outlined"
                 density="compact"
                 hide-details
-              ></v-text-field>
+              ></v-date-input>
             </v-col>
             <v-col cols="4">
-              <v-text-field
-                label="To"
+              <v-date-input
                 v-model="request.to"
+                label="To"
+                prepend-icon=""
                 variant="outlined"
                 density="compact"
                 hide-details
-              ></v-text-field>
+              ></v-date-input>
             </v-col>
 
             <v-col cols="12">
@@ -155,13 +157,14 @@
 <script setup>
 import { mdiEye, mdiLogout } from "@mdi/js";
 import { ref, reactive } from "vue";
+import { VDateInput } from "vuetify/labs/VDateInput";
 
 const leaveRequest = ref(false);
 const timeRequest = ref([
   {
     type: "Diddy Do It",
-    from: "18/02/2025",
-    to: "18/02/2025",
+    from: new Date().toLocaleDateString(),
+    to: new Date().toLocaleDateString(),
     notes: "Baby Powder",
     status: "Approved",
   },
@@ -172,8 +175,8 @@ const request = ref({
   position: "Employee",
   type: "Sick",
   reason: "",
-  from: "",
-  to: "",
+  from: new Date().toLocaleDateString(),
+  to: new Date().toLocaleDateString(),
 });
 
 const leaveType = ["Sick", "Family", "Maternity"];

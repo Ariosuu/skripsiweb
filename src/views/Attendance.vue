@@ -1,92 +1,83 @@
 <template>
-  <div style="background-color: #dcdcdd; min-height: 100%">
-    <v-app-bar color="#C5C3C6" flat height="64">
-      <p color="#C5C3C6" class="text-h6 font-weight-bold pl-8">Attendance</p>
-      <v-spacer></v-spacer>
-      <v-avatar color="surface-variant" size="small"> </v-avatar>
-      <v-btn :icon="mdiLogout"> </v-btn>
-    </v-app-bar>
+  <v-app-bar color="#C5C3C6" flat height="64">
+    <p color="#C5C3C6" class="text-h6 font-weight-bold pl-8">Attendance</p>
+    <v-spacer></v-spacer>
+    <v-avatar color="surface-variant" size="small"> </v-avatar>
+    <v-btn :icon="mdiLogout"> </v-btn>
+  </v-app-bar>
 
-    <v-card class="fill-height pa-4 ml-5 mr-5">
-      <v-card color="#D9D9D9" class="pa-4 fill-height" no-gutters>
-        <v-col cols="12">
-          <v-row align="center">
-            <v-col cols="1">
-              <v-avatar color="surface-variant" size="x-large"> </v-avatar>
-            </v-col>
-            <v-col cols="9">
-              <v-card-title>Eric Sebastian Chandra</v-card-title>
-              <v-card-subtitle>Employee</v-card-subtitle>
-            </v-col>
-            <v-col cols="1">
-              <v-btn
-                variant="plain"
-                block
-                base-color="#46494C"
-                @click="clockIn"
+  <v-card height="800" class="pa-4 ml-5 mr-5">
+    <v-card color="#D9D9D9" class="pa-4" no-gutters>
+      <v-col cols="12">
+        <v-row align="center">
+          <v-col cols="1">
+            <v-avatar color="surface-variant" size="x-large"> </v-avatar>
+          </v-col>
+          <v-col cols="9">
+            <v-card-title>Eric Sebastian Chandra</v-card-title>
+            <v-card-subtitle>Employee</v-card-subtitle>
+          </v-col>
+          <v-col cols="1">
+            <v-btn variant="plain" block base-color="#46494C" @click="clockIn">
+              <v-icon
+                color="#1985A1"
+                slot="prepend-icon"
+                :icon="mdiLoginVariant"
+                :size="30"
+              />
+              <div class="pa-2 font-weight-medium" slot="default">CLOCK IN</div>
+            </v-btn>
+          </v-col>
+          <v-col cols="1">
+            <v-btn variant="plain" block base-color="#46494C">
+              <v-icon
+                color="#1985A1"
+                slot="prepend-icon"
+                :icon="mdiLoginVariant"
+                :size="30"
+              />
+              <div
+                class="pa-2 font-weight-medium"
+                slot="default"
+                @click="clockOut"
               >
-                <v-icon
-                  color="#1985A1"
-                  slot="prepend-icon"
-                  :icon="mdiLoginVariant"
-                  :size="30"
-                />
-                <div class="pa-2 font-weight-medium" slot="default">
-                  CLOCK IN
-                </div>
-              </v-btn>
-            </v-col>
-            <v-col cols="1">
-              <v-btn variant="plain" block base-color="#46494C">
-                <v-icon
-                  color="#1985A1"
-                  slot="prepend-icon"
-                  :icon="mdiLoginVariant"
-                  :size="30"
-                />
-                <div
-                  class="pa-2 font-weight-medium"
-                  slot="default"
-                  @click="clockOut"
-                >
-                  CLOCK OUT
-                </div>
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-col>
-      </v-card>
-
-      <h3 class="text-h6 ml-7 mt-10 mb-5">Attendance Log</h3>
-
-      <v-card color="#D9D9D9" class="pa-4 fill-height" no-gutters>
-        <v-row class="px-4 pb-4">
-          <v-col cols="12">
-            <v-table>
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Clocked In</th>
-                  <th>Clocked Out</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(record, index) in attendanceRecords" :key="index">
-                  <td>{{ record.date }}</td>
-                  <td>{{ record.clockedIn }}</td>
-                  <td>{{ record.clockedOut }}</td>
-                  <td>
-                    {{ record.status }}
-                  </td>
-                </tr>
-              </tbody>
-            </v-table>
+                CLOCK OUT
+              </div>
+            </v-btn>
           </v-col>
         </v-row>
-      </v-card>
+      </v-col>
     </v-card>
-  </div>
+
+    <h3 class="text-h6 ml-7 mt-10 mb-5">Attendance Log</h3>
+
+    <v-card height="550" color="#D9D9D9" class="pa-4" no-gutters>
+      <v-row class="px-4 pb-4">
+        <v-col cols="12">
+          <v-table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Clocked In</th>
+                <th>Clocked Out</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(record, index) in attendanceRecords" :key="index">
+                <td>{{ record.date }}</td>
+                <td>{{ record.clockedIn }}</td>
+                <td>{{ record.clockedOut }}</td>
+                <td>
+                  {{ record.status }}
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-col>
+      </v-row>
+    </v-card>
+  </v-card>
 </template>
 
 <script setup>

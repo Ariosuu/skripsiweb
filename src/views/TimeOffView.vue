@@ -133,6 +133,7 @@
                 label="Reason"
                 variant="outlined"
                 v-model="request.reason"
+                hide-details
               ></v-textarea>
             </v-col>
           </v-row>

@@ -69,38 +69,83 @@
   </v-card>
 
   <v-dialog v-model="leaveRequest" width="auto">
-    <v-card width="450">
+    <v-card width="700">
       <v-card-title>Employee Leave Request Form</v-card-title>
       <v-card-text class="pa-4 pt-2">
-        <v-form v-model="form">
-          <v-text-field
-            label="Employee Name"
-            v-model="request.name"
-            readonly
-            variant="outlined"
-            density="compact"
-          ></v-text-field>
+        <form @submit.prevent>
+          <v-row>
+            <v-col cols="12">
+              <v-text-field
+                label="Employee Name"
+                v-model="request.name"
+                readonly
+                variant="outlined"
+                density="compact"
+                width="auto"
+                hide-details
+              ></v-text-field>
+            </v-col>
 
-          <v-text-field
-            label="Position"
-            v-model="request.position"
-            readonly
-            variant="outlined"
-            density="compact"
-          ></v-text-field>
+            <v-col cols="12">
+              <v-text-field
+                label="Position"
+                v-model="request.position"
+                readonly
+                variant="outlined"
+                density="compact"
+                hide-details
+              ></v-text-field>
+            </v-col>
 
-          <v-autocomplete
-            label="Leave Type"
-            type="string"
-            :items="leaveType"
-            v-model="request.type"
-            variant="outlined"
-            density="compact"
-          ></v-autocomplete>
-        </v-form>
+            <v-col cols="4">
+              <v-autocomplete
+                label="Leave Type"
+                type="string"
+                :items="leaveType"
+                v-model="request.type"
+                variant="outlined"
+                density="compact"
+                hide-details
+              ></v-autocomplete>
+            </v-col>
+
+            <v-col cols="4">
+              <v-text-field
+                label="From"
+                v-model="request.from"
+                variant="outlined"
+                density="compact"
+                hide-details
+              ></v-text-field>
+            </v-col>
+            <v-col cols="4">
+              <v-text-field
+                label="To"
+                v-model="request.to"
+                variant="outlined"
+                density="compact"
+                hide-details
+              ></v-text-field>
+            </v-col>
+
+            <v-col cols="12">
+              <v-textarea
+                label="Reason"
+                variant="outlined"
+                v-model="request.reason"
+              ></v-textarea>
+            </v-col>
+          </v-row>
+        </form>
       </v-card-text>
       <v-card-actions>
-        <v-btn text="Submit" color="#1985A1" variant="flat" />
+        <v-btn
+          type="submit"
+          text="Submit"
+          color="#1985A1"
+          variant="flat"
+          @click="test"
+        />
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -121,8 +166,7 @@ const timeRequest = ref([
   },
 ]);
 
-const form = ref();
-const request = reactive({
+const request = ref({
   name: "Daniel Garyo",
   position: "Employee",
   type: "Sick",
@@ -150,5 +194,9 @@ const chipColor = (x) => {
   } else if (x == "Rejected") {
     return "red";
   }
+};
+
+const test = () => {
+  console.log(request.value);
 };
 </script>

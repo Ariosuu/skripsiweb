@@ -16,7 +16,7 @@
             </span>
 
             <span>
-              <v-btn color="#1985A1" flat @click="leaveRequest = true">
+              <v-btn color="#1985A1" flat @click="openDialogRequest()">
                 Request Leave
               </v-btn>
             </span>
@@ -32,8 +32,13 @@
             :items="timeRequest"
             hide-default-footer
           >
-            <template v-slot:item.detail>
-              <v-btn icon flat size="sm">
+            <template v-slot:item.detail="{ item }">
+              <v-btn
+                icon
+                flat
+                size="sm"
+                @click="openDialogDetail(timeRequest.indexOf(item))"
+              >
                 <v-icon :icon="mdiEye" color="#1985A1" />
               </v-btn>
             </template>
@@ -68,9 +73,11 @@
     </v-card-text>
   </v-card>
 
-  <v-dialog v-model="leaveRequest" width="auto">
-    <v-card width="700">
-      <v-card-title>Employee Leave Request Form</v-card-title>
+  <v-dialog v-model="dialog" width="auto">
+    <v-card width="700" title="Employee Leave Request Form">
+      <template v-slot:append>
+        <v-btn :icon="mdiClose" flat size="sm" @click="closeDialog"></v-btn>
+      </template>
       <v-card-text class="pa-4 pt-2">
         <form @submit.prevent>
           <v-row>
@@ -106,6 +113,7 @@
                 variant="outlined"
                 density="compact"
                 hide-details
+                :readonly="isDetail"
               ></v-autocomplete>
             </v-col>
 
@@ -117,6 +125,7 @@
                 variant="outlined"
                 density="compact"
                 hide-details
+                :readonly="isDetail"
               ></v-date-input>
             </v-col>
             <v-col cols="4">
@@ -127,16 +136,35 @@
                 variant="outlined"
                 density="compact"
                 hide-details
+                :readonly="isDetail"
               ></v-date-input>
             </v-col>
 
             <v-col cols="12">
               <v-textarea
+                label="Notes"
+                variant="outlined"
+                v-model="request.notes"
+                hide-details
+                :readonly="isDetail"
+              ></v-textarea>
+            </v-col>
+
+            <v-col cols="3" v-if="isDetail">
+              Status :
+              <v-chip :color="chipColor(request.status)">
+                {{ request.status }}
+              </v-chip>
+            </v-col>
+            <v-col v-if="request.status == 'Rejected'">
+              <v-text-field
+                v-model="request.reason"
                 label="Reason"
                 variant="outlined"
-                v-model="request.reason"
                 hide-details
-              ></v-textarea>
+                density="compact"
+                :readonly="isDetail"
+              ></v-text-field>
             </v-col>
           </v-row>
         </form>
@@ -155,31 +183,46 @@
 </template>
 
 <script setup>
-import { mdiEye, mdiLogout } from "@mdi/js";
+import { mdiClose, mdiEye, mdiLogout } from "@mdi/js";
 import { ref, reactive } from "vue";
 import { VDateInput } from "vuetify/labs/VDateInput";
 
-const leaveRequest = ref(false);
+const dialog = ref(false);
 const timeRequest = ref([
   {
+    name: "Daniel Garyo",
+    position: "Employee",
     type: "Diddy Do It",
     from: new Date().toLocaleDateString(),
     to: new Date().toLocaleDateString(),
     notes: "Baby Powder",
+    reason: "P.Diddy",
     status: "Approved",
   },
+  {
+    name: "Daniel Garyo",
+    position: "Employee",
+    type: "Diddy Do It",
+    from: new Date().toLocaleDateString(),
+    to: new Date().toLocaleDateString(),
+    notes: "Baby Powder",
+    reason: "P.Diddy",
+    status: "Rejected",
+  },
 ]);
-
 const request = ref({
   name: "Daniel Garyo",
   position: "Employee",
-  type: "Sick",
-  reason: "",
+  type: null,
   from: new Date().toLocaleDateString(),
   to: new Date().toLocaleDateString(),
+  notes: "",
+  reason: "",
+  status: "",
 });
-
 const leaveType = ["Sick", "Family", "Maternity"];
+const isRequest = ref(false);
+const isDetail = ref(false);
 
 const headers = ref([
   { title: "Type", key: "type", align: "start" },
@@ -200,7 +243,33 @@ const chipColor = (x) => {
   }
 };
 
+const openDialogRequest = () => {
+  isRequest.value = true;
+  dialog.value = true;
+};
+
+const openDialogDetail = (x) => {
+  isDetail.value = true;
+  request.value = timeRequest.value[x];
+  dialog.value = true;
+};
+
+const closeDialog = () => {
+  isRequest.value = false;
+  isDetail.value = false;
+  dialog.value = false;
+  request.value = {
+    name: "Daniel Garyo",
+    position: "Employee",
+    type: null,
+    from: new Date().toLocaleDateString(),
+    to: new Date().toLocaleDateString(),
+    notes: "",
+    status: "",
+  };
+};
+
 const test = () => {
-  console.log(request.value);
+  console.log(timeRequest.value);
 };
 </script>

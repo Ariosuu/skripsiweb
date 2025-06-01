@@ -12,7 +12,8 @@
         <v-card-title class="pa-6">
           <div class="text-h5 font-weight-bold d-flex justify-space-between">
             <span>
-              Leave Remaining : <span style="color: #1985a1">5 Days</span>
+              Leave Remaining :
+              <span style="color: #1985a1">{{ leaveRemaining }} Days</span>
             </span>
 
             <span>
@@ -73,7 +74,7 @@
     </v-card-text>
   </v-card>
 
-  <v-dialog v-model="dialog" width="auto">
+  <v-dialog v-model="dialog" width="auto" persistent>
     <v-card width="700" title="Employee Leave Request Form">
       <template v-slot:append>
         <v-btn :icon="mdiClose" flat size="sm" @click="closeDialog"></v-btn>
@@ -85,7 +86,7 @@
               <v-text-field
                 label="Employee Name"
                 v-model="request.name"
-                readonly
+                disabled
                 variant="outlined"
                 density="compact"
                 width="auto"
@@ -97,14 +98,14 @@
               <v-text-field
                 label="Position"
                 v-model="request.position"
-                readonly
+                disabled
                 variant="outlined"
                 density="compact"
                 hide-details
               ></v-text-field>
             </v-col>
 
-            <v-col cols="4">
+            <v-col cols="4" class="pb-0">
               <v-autocomplete
                 label="Leave Type"
                 type="string"
@@ -112,12 +113,12 @@
                 v-model="request.type"
                 variant="outlined"
                 density="compact"
-                hide-details
+                :rules="[rules.required('You have to fill this field')]"
                 :readonly="isDetail"
               ></v-autocomplete>
             </v-col>
 
-            <v-col cols="4">
+            <v-col cols="4" v-if="isDetail">
               <v-date-input
                 v-model="request.from"
                 label="From"
@@ -128,7 +129,7 @@
                 :readonly="isDetail"
               ></v-date-input>
             </v-col>
-            <v-col cols="4">
+            <v-col cols="4" v-if="isDetail">
               <v-date-input
                 v-model="request.to"
                 label="To"
@@ -137,6 +138,21 @@
                 density="compact"
                 hide-details
                 :readonly="isDetail"
+              ></v-date-input>
+            </v-col>
+
+            <v-col class="pb-0" v-if="isRequest">
+              <v-date-input
+                v-model="request.fromTo"
+                label="From - To"
+                variant="outlined"
+                density="compact"
+                :rules="[rules.required('You have to fill this field')]"
+                :readonly="isDetail"
+                :min="request.fromTo.length ? request.fromTo[0] : tommorow()"
+                :max="daysPlusLeaveRemaining(request.fromTo[0])"
+                :allowed-dates="allowedDates"
+                multiple="range"
               ></v-date-input>
             </v-col>
 
@@ -186,13 +202,16 @@
 import { mdiClose, mdiEye, mdiLogout } from "@mdi/js";
 import { ref, reactive } from "vue";
 import { VDateInput } from "vuetify/labs/VDateInput";
+import { useRules } from "vuetify/labs/rules";
 
 const dialog = ref(false);
+const leaveRemaining = ref(12);
 const timeRequest = ref([
   {
     name: "Daniel Garyo",
     position: "Employee",
     type: "Diddy Do It",
+    fromTo: [],
     from: new Date().toLocaleDateString(),
     to: new Date().toLocaleDateString(),
     notes: "Baby Powder",
@@ -214,6 +233,7 @@ const request = ref({
   name: "Daniel Garyo",
   position: "Employee",
   type: null,
+  fromTo: [],
   from: new Date().toLocaleDateString(),
   to: new Date().toLocaleDateString(),
   notes: "",
@@ -224,6 +244,8 @@ const leaveType = ["Sick", "Family", "Maternity"];
 const isRequest = ref(false);
 const isDetail = ref(false);
 
+const rules = useRules();
+
 const headers = ref([
   { title: "Type", key: "type", align: "start" },
   { title: "From", key: "from", align: "center" },
@@ -232,6 +254,37 @@ const headers = ref([
   { title: "Status", key: "status", align: "center", sortable: false },
   { title: "Detail", key: "detail", align: "center", sortable: false },
 ]);
+
+const tommorow = () => {
+  let today = new Date();
+  today.setDate(today.getDate() + 1);
+
+  return today.toLocaleDateString();
+};
+
+const daysPlusLeaveRemaining = (x) => {
+  if (x) {
+    const dateStart = new Date();
+    dateStart.setDate(x.getDate());
+
+    if (leaveRemaining.value <= 6 - dateStart.getDay()) {
+      dateStart.setDate(x.getDate() + leaveRemaining.value - 1);
+    } else if (leaveRemaining.value >= 6 - dateStart.getDay()) {
+      if (leaveRemaining.value <= 6) {
+        dateStart.setDate(x.getDate() + leaveRemaining.value - 1 + 2);
+      } else if (leaveRemaining.value > 6) {
+        for (let i = leaveRemaining.value; i > 0; i--) {
+          dateStart.setDate(dateStart.getDate() + 1);
+          if (dateStart.getDay() == 6) {
+            dateStart.setDate(dateStart.getDate() + 2);
+          }
+        }
+        dateStart.setDate(dateStart.getDate() - 1);
+      }
+    }
+    return dateStart.toLocaleDateString();
+  }
+};
 
 const chipColor = (x) => {
   if (x == "Approved") {
@@ -262,13 +315,19 @@ const closeDialog = () => {
     name: "Daniel Garyo",
     position: "Employee",
     type: null,
-    from: new Date().toLocaleDateString(),
-    to: new Date().toLocaleDateString(),
+    fromTo: [],
     notes: "",
     status: "",
   };
 };
 
+function allowedDates(val) {
+  if (val.getDay() == 0 || val.getDay() == 6) {
+    return false;
+  } else {
+    return true;
+  }
+}
 const test = () => {
   console.log(timeRequest.value);
 };

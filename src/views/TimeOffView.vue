@@ -44,6 +44,14 @@
               </v-btn>
             </template>
 
+            <template v-slot:item.from="{ value }">
+              {{ value.toLocaleDateString() }}
+            </template>
+
+            <template v-slot:item.to="{ value }">
+              {{ value.toLocaleDateString() }}
+            </template>
+
             <template v-slot:item.status="{ value }">
               <v-chip :color="chipColor(value)">{{ value }}</v-chip>
             </template>
@@ -75,12 +83,12 @@
   </v-card>
 
   <v-dialog v-model="dialog" width="auto" persistent>
-    <v-card width="700" title="Employee Leave Request Form">
-      <template v-slot:append>
-        <v-btn :icon="mdiClose" flat size="sm" @click="closeDialog"></v-btn>
-      </template>
-      <v-card-text class="pa-4 pt-2">
-        <form @submit.prevent>
+    <v-form @submit.prevent="test" v-model="isValid">
+      <v-card width="700" title="Employee Leave Request Form">
+        <template v-slot:append>
+          <v-btn :icon="mdiClose" flat size="sm" @click="closeDialog"></v-btn>
+        </template>
+        <v-card-text class="pa-4 pt-2">
           <v-row>
             <v-col cols="12">
               <v-text-field
@@ -115,6 +123,7 @@
                 density="compact"
                 :rules="[rules.required('You have to fill this field')]"
                 :readonly="isDetail"
+                required
               ></v-autocomplete>
             </v-col>
 
@@ -126,7 +135,7 @@
                 variant="outlined"
                 density="compact"
                 hide-details
-                :readonly="isDetail"
+                readonly
               ></v-date-input>
             </v-col>
             <v-col cols="4" v-if="isDetail">
@@ -137,7 +146,7 @@
                 variant="outlined"
                 density="compact"
                 hide-details
-                :readonly="isDetail"
+                readonly
               ></v-date-input>
             </v-col>
 
@@ -153,6 +162,7 @@
                 :max="daysPlusLeaveRemaining(request.fromTo[0])"
                 :allowed-dates="allowedDates"
                 multiple="range"
+                required
               ></v-date-input>
             </v-col>
 
@@ -183,18 +193,12 @@
               ></v-text-field>
             </v-col>
           </v-row>
-        </form>
-      </v-card-text>
-      <v-card-actions>
-        <v-btn
-          type="submit"
-          text="Submit"
-          color="#1985A1"
-          variant="flat"
-          @click="test"
-        />
-      </v-card-actions>
-    </v-card>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn type="submit" text="Submit" color="#1985A1" variant="flat" />
+        </v-card-actions>
+      </v-card>
+    </v-form>
   </v-dialog>
 </template>
 
@@ -212,8 +216,8 @@ const timeRequest = ref([
     position: "Employee",
     type: "Diddy Do It",
     fromTo: [],
-    from: new Date().toLocaleDateString(),
-    to: new Date().toLocaleDateString(),
+    from: new Date(),
+    to: new Date(),
     notes: "Baby Powder",
     reason: "P.Diddy",
     status: "Approved",
@@ -222,8 +226,8 @@ const timeRequest = ref([
     name: "Daniel Garyo",
     position: "Employee",
     type: "Diddy Do It",
-    from: new Date().toLocaleDateString(),
-    to: new Date().toLocaleDateString(),
+    from: new Date(),
+    to: new Date(),
     notes: "Baby Powder",
     reason: "P.Diddy",
     status: "Rejected",
@@ -234,15 +238,16 @@ const request = ref({
   position: "Employee",
   type: null,
   fromTo: [],
-  from: new Date().toLocaleDateString(),
-  to: new Date().toLocaleDateString(),
+  from: new Date(),
+  to: new Date(),
   notes: "",
   reason: "",
-  status: "",
+  status: "Pending",
 });
 const leaveType = ["Sick", "Family", "Maternity"];
 const isRequest = ref(false);
 const isDetail = ref(false);
+const isValid = ref(false);
 
 const rules = useRules();
 
@@ -290,7 +295,7 @@ const chipColor = (x) => {
   if (x == "Approved") {
     return "green";
   } else if (x == "Pending") {
-    return "yellow";
+    return "orange";
   } else if (x == "Rejected") {
     return "red";
   }
@@ -329,6 +334,12 @@ function allowedDates(val) {
   }
 }
 const test = () => {
-  console.log(timeRequest.value);
+  if (isValid.value) {
+    request.value.from = request.value.fromTo[0];
+    request.value.to = request.value.fromTo[request.value.fromTo.length - 1];
+
+    timeRequest.value.unshift(request.value);
+    closeDialog();
+  }
 };
 </script>

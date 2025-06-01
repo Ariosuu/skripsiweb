@@ -8,19 +8,34 @@
 
   <v-col cols="12" class="pl-10 pt-10">
     <v-row align="center">
-      <v-col cols="10">
+      <v-col>
         <h1 class="text-grey-darken-3">View My Training</h1>
       </v-col>
-      <v-col cols="auto">
-        <v-btn variant="text">
-          <p class="pr-3">Search</p>
-          <v-icon
-            color="#1985A1"
-            slot="prepend-icon"
-            :icon="mdiMagnify"
-            :size="20"
-          />
-        </v-btn>
+      <v-col cols="auto" class="d-flex justify-end">
+        <v-text-field
+          v-model="search"
+          :loading="loading"
+          :append-inner-icon="mdiMagnify"
+          density="compact"
+          label="Search Training"
+          variant="solo"
+          hide-details
+          single-line
+          @click:append-inner="
+            () => {
+              applySearch();
+              onClick();
+            }
+          "
+          @keyup.enter="
+            () => {
+              applySearch();
+              onClick();
+            }
+          "
+          style="max-width: 340px; min-width: 200px; margin-right: 16px"
+        >
+        </v-text-field>
       </v-col>
     </v-row>
   </v-col>
@@ -36,10 +51,11 @@
           <th>Training Type</th>
           <th>Trainer Score</th>
           <th>Trainer Evaluation</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(item, index) in items" :key="index">
+        <tr v-for="(item, index) in filteredItems" :key="index">
           <td>{{ item.Tname }}</td>
           <td>{{ item.date }}</td>
           <td>{{ item.durat }}</td>
@@ -47,6 +63,16 @@
           <td>{{ item.type }}</td>
           <td>{{ item.score }}</td>
           <td>{{ item.status }}</td>
+          <td>
+            <v-btn
+              color="#1694CF"
+              style="color: #fff"
+              size="small"
+              variant="flat"
+            >
+              Download
+            </v-btn>
+          </td>
         </tr>
       </tbody>
     </v-table>
@@ -84,4 +110,28 @@ const items = ref([
     status: "Completed",
   },
 ]);
+
+const loaded = ref(false);
+const loading = ref(false);
+const search = ref("");
+const filteredItems = ref([...items.value]);
+
+function applySearch() {
+  const s = search.value.trim().toLowerCase();
+  if (!s) {
+    filteredItems.value = [...items.value];
+    return;
+  }
+  filteredItems.value = items.value.filter((item) =>
+    Object.values(item).some((val) => String(val).toLowerCase().includes(s))
+  );
+}
+
+function onClick() {
+  loading.value = true;
+  setTimeout(() => {
+    loading.value = false;
+    loaded.value = true;
+  }, 1000);
+}
 </script>

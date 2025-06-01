@@ -1,16 +1,13 @@
 <template>
-
+  <v-btn to="/login">Login</v-btn>
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-
-// Components
+import { defineComponent } from "vue";
 
 export default defineComponent({
-  name: 'HomeView',
+  name: "HomeView",
 
-  components: {
-  },
+  components: {},
 });
 </script>

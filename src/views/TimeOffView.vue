@@ -6,7 +6,7 @@
     <v-btn :icon="mdiLogout"> </v-btn>
   </v-app-bar>
 
-  <v-card class="ma-4">
+  <v-card class="ma-4" height="95%">
     <v-card-text>
       <v-card flat color="#D9D9D9">
         <v-card-title class="pa-6">
@@ -271,6 +271,8 @@ const daysPlusLeaveRemaining = (x) => {
   if (x) {
     const dateStart = new Date();
     dateStart.setDate(x.getDate());
+    dateStart.setMonth(x.getMonth());
+    dateStart.setFullYear(x.getFullYear());
 
     if (leaveRemaining.value <= 6 - dateStart.getDay()) {
       dateStart.setDate(x.getDate() + leaveRemaining.value - 1);

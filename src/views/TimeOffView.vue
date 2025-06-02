@@ -26,7 +26,7 @@
       </v-card>
 
       <v-row class="pt-4">
-        <v-col cols="8">
+        <v-col>
           <span class="pl-2 text-h6 font-weight-bold">Leave Request</span>
           <v-data-table
             :headers="headers"
@@ -56,27 +56,6 @@
               <v-chip :color="chipColor(value)">{{ value }}</v-chip>
             </template>
           </v-data-table>
-        </v-col>
-        <v-col cols="4">
-          <v-card flat color="#D9D9D9">
-            <v-card-title class="text-h6">Leave Request History</v-card-title>
-            <v-card-text>
-              <v-card flat>
-                <v-card-text class="pa-0 bg-transparent|">
-                  <v-card
-                    title="Sick Leave"
-                    subtitle="18/06/2048 - 26/06/2048"
-                    flat
-                    class="pa-0"
-                  >
-                    <template v-slot:append>
-                      <v-chip color="green">Approved</v-chip>
-                    </template>
-                  </v-card>
-                </v-card-text>
-              </v-card>
-            </v-card-text>
-          </v-card>
         </v-col>
       </v-row>
     </v-card-text>

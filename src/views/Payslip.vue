@@ -47,7 +47,7 @@
           </thead>
           <tbody>
             <tr v-for="item in pay" :key="item.month">
-              <td class="text-center">{{ selectedMonth }}</td>
+              <td class="text-center">{{ selectedMonth }} 2025</td>
               <td class="text-center">{{ item.grossPay }}</td>
               <td class="text-center">{{ item.reimburse }}</td>
               <td class="text-center">{{ item.deduction }}</td>
@@ -84,11 +84,10 @@ const months = [
 
 const pay = ref([
   {
-    month: "January",
-    grossPay: "$3000",
-    reimburse: "$200",
-    deduction: "$100",
-    takeHome: "$3100",
+    grossPay: "Rp 3.000.000",
+    reimburse: "Rp 0",
+    deduction: "Rp 1.000.000",
+    takeHome: "Rp 2.000.000",
   },
 ]);
 const selectedMonth = ref(months[0]);

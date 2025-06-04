@@ -6,7 +6,7 @@
     <v-btn :icon="mdiLogout"> </v-btn>
   </v-app-bar>
 
-  <v-card height="800" class="pa-4 ml-5 mr-5">
+  <v-card height="800" class="pa-4 ml-5 mr-5 mt-5" no-gutters>
     <v-card color="#D9D9D9" class="pa-4" no-gutters>
       <v-col cols="12">
         <v-row align="center">

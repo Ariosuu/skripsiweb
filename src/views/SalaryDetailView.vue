@@ -1,0 +1,236 @@
+<template>
+  <v-app-bar color="#C5C3C6" flat height="64">
+    <p color="#C5C3C6" class="text-h6 font-weight-bold pl-8">Salary Detail</p>
+    <v-spacer></v-spacer>
+    <v-avatar size="32"> </v-avatar>
+    <v-btn :icon="mdiLogout"> </v-btn>
+  </v-app-bar>
+
+  <v-select
+    class="ma-4"
+    :items="['January', 'February']"
+    flat
+    variant="solo"
+    density="compact"
+    hide-details
+    width="25%"
+    v-model="currentMonth"
+    prepend-inner-icon=""
+  >
+    <template v-slot:prepend-inner>
+      <v-icon :icon="mdiFilter" size="sm" color="#207a9a" />
+    </template>
+  </v-select>
+
+  <v-card class="ma-4" height="90%">
+    <v-card class="ma-4" color="#D9D9D9" flat>
+      <v-card-text>
+        <v-row>
+          <v-col cols="2">
+            <pie-chart height="170" :series="salary" />
+          </v-col>
+          <v-col class="d-flex align-center">
+            <v-row>
+              <v-col cols="12">
+                <span class="text-h4 font-weight-bold"> Monthly CTC </span>
+                <br />
+                <span class="text-h6"> Yearly CTC </span>
+              </v-col>
+              <v-col cols="12">
+                <v-row>
+                  <v-col cols="2" class="earning">
+                    <span class="text-h6 font-weight-bold"> Earnings </span>
+                    <br />
+                    <span class="text-subtitle">
+                      {{
+                        totalEarning().toLocaleString("id-id", {
+                          style: "currency",
+                          currency: "IDR",
+                        })
+                      }}
+                    </span>
+                  </v-col>
+                  <v-col cols="2" class="reimburse">
+                    <span class="text-h6 font-weight-bold">
+                      Reimbursement
+                    </span>
+                    <br />
+                    <span class="text-subtitle">
+                      {{
+                        totalReimbursement().toLocaleString("id-id", {
+                          style: "currency",
+                          currency: "IDR",
+                        })
+                      }}
+                    </span>
+                  </v-col>
+                  <v-col cols="2" class="deduction">
+                    <span class="text-h6 font-weight-bold"> Deduction </span>
+                    <br />
+                    <span class="text-subtitle">
+                      {{
+                        totalDeduction().toLocaleString("id-id", {
+                          style: "currency",
+                          currency: "IDR",
+                        })
+                      }}
+                    </span>
+                  </v-col>
+                </v-row>
+              </v-col>
+            </v-row>
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-card>
+
+    <v-row class="ma-4">
+      <v-col cols="12" class="pt-0">
+        <v-card
+          flat
+          class="bg-color-transparent overflow-y-auto"
+          height="440"
+          max-height="500"
+        >
+          <span class="text-h5 font-weight-bold">Earning</span><br />
+          <span
+            v-for="item in earning"
+            class="d-flex justify-space-between flex-row pa-2"
+          >
+            <div>{{ item.name }}</div>
+            <div>
+              {{
+                item.total.toLocaleString("id-id", {
+                  style: "currency",
+                  currency: "IDR",
+                })
+              }}
+            </div>
+          </span>
+
+          <span class="text-h5 font-weight-bold">Reimbursement</span><br />
+          <span
+            v-for="item in reimbursement"
+            class="d-flex justify-space-between flex-row pa-2"
+          >
+            <div>{{ item.name }}</div>
+            <div>
+              {{
+                item.total.toLocaleString("id-id", {
+                  style: "currency",
+                  currency: "IDR",
+                })
+              }}
+            </div>
+          </span>
+
+          <span class="text-h5 font-weight-bold">Deduction</span><br />
+          <span
+            v-for="item in deduction"
+            class="d-flex justify-space-between flex-row pa-2"
+          >
+            <div>{{ item.name }}</div>
+            <div>
+              {{
+                item.total.toLocaleString("id-id", {
+                  style: "currency",
+                  currency: "IDR",
+                })
+              }}
+            </div>
+          </span>
+        </v-card>
+      </v-col>
+      <v-divider></v-divider>
+      <v-col cols="12">
+        <span
+          class="text-h5 font-weight-bold d-flex justify-space-between flex-row"
+        >
+          <div>Total</div>
+          <div>
+            {{
+              totalSalary.toLocaleString("id-id", {
+                style: "currency",
+                currency: "IDR",
+              })
+            }}
+          </div>
+        </span>
+      </v-col>
+    </v-row>
+  </v-card>
+</template>
+
+<script setup>
+import { mdiFilter, mdiLogout } from "@mdi/js";
+import { ref } from "vue";
+import PieChart from "@/components/PieChart.vue";
+
+const currentMonth = ref("February");
+
+const earning = ref([
+  { name: "Basic", total: 10000000 },
+  { name: "Bonus", total: 2000000 },
+  { name: "Transportation", total: 1000000 },
+  { name: "Food", total: 1000000 },
+]);
+
+const deduction = ref([
+  { name: "Absence", total: 500000 },
+  { name: "Leave", total: 500000 },
+]);
+
+const reimbursement = ref([
+  { name: "Business Expense", total: 750000 },
+  { name: "Insurance", total: 650000 },
+]);
+
+const totalEarning = () => {
+  let total = 0;
+  for (let i = 0; i < earning.value.length; i++) {
+    total += earning.value[i].total;
+  }
+
+  return total;
+};
+
+const totalReimbursement = () => {
+  let total = 0;
+  for (let i = 0; i < reimbursement.value.length; i++) {
+    total += reimbursement.value[i].total;
+  }
+
+  return total;
+};
+
+const totalDeduction = () => {
+  let total = 0;
+  for (let i = 0; i < deduction.value.length; i++) {
+    total += deduction.value[i].total;
+  }
+
+  return total;
+};
+
+const salary = ref([totalEarning(), totalReimbursement(), totalDeduction()]);
+const totalSalary = ref(
+  totalEarning() + totalReimbursement() - totalDeduction()
+);
+</script>
+
+<style scoped>
+.earning {
+  border-left-style: solid;
+  border-color: #69ff91;
+}
+
+.reimburse {
+  border-left-style: solid;
+  border-color: #69bcff;
+}
+
+.deduction {
+  border-left-style: solid;
+  border-color: #ff6969;
+}
+</style>

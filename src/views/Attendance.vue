@@ -18,7 +18,7 @@
             <v-card-subtitle>Employee</v-card-subtitle>
           </v-col>
           <v-col cols="1">
-            <v-btn variant="plain" block base-color="#46494C" @click="clockIn">
+            <v-btn variant="text" block base-color="#46494C" @click="clockIn">
               <v-icon
                 color="#1985A1"
                 slot="prepend-icon"
@@ -29,7 +29,7 @@
             </v-btn>
           </v-col>
           <v-col cols="1">
-            <v-btn variant="plain" block base-color="#46494C">
+            <v-btn variant="text" block base-color="#46494C">
               <v-icon
                 color="#1985A1"
                 slot="prepend-icon"
@@ -51,32 +51,34 @@
 
     <h3 class="text-h6 ml-7 mt-10 mb-5">Attendance Log</h3>
 
-    <v-card height="550" color="#D9D9D9" class="pa-4" no-gutters>
-      <v-row class="px-4 pb-4">
-        <v-col cols="12">
-          <v-table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Clocked In</th>
-                <th>Clocked Out</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(record, index) in attendanceRecords" :key="index">
-                <td>{{ record.date }}</td>
-                <td>{{ record.clockedIn }}</td>
-                <td>{{ record.clockedOut }}</td>
-                <td>
-                  {{ record.status }}
-                </td>
-              </tr>
-            </tbody>
-          </v-table>
-        </v-col>
-      </v-row>
-    </v-card>
+    <v-row class="px-4 pb-4">
+      <v-col cols="12">
+        <v-data-table
+          :headers="headers"
+          :items="timeRequest"
+          hide-default-footer
+        >
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Clocked In</th>
+              <th>Clocked Out</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(record, index) in attendanceRecords" :key="index">
+              <td>{{ record.date }}</td>
+              <td>{{ record.clockedIn }}</td>
+              <td>{{ record.clockedOut }}</td>
+              <td>
+                {{ record.status }}
+              </td>
+            </tr>
+          </tbody>
+        </v-data-table>
+      </v-col>
+    </v-row>
   </v-card>
 </template>
 
@@ -141,18 +143,3 @@ const clockOut = () => {
   }
 };
 </script>
-
-<style scoped>
-.v-table {
-  background-color: #d9d9d9;
-}
-
-.v-table th {
-  color: #46494c;
-  font-weight: 600;
-}
-
-.v-table td {
-  color: #46494c;
-}
-</style>

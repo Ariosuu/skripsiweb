@@ -7,56 +7,14 @@
   </v-app-bar>
 
   <v-card class="ma-5" height="95%">
-    <div class="d-flex align-center" style="padding: 16px 0 0 16px">
-      <v-menu offset-y>
-        <template #activator="{ props }">
-          <v-btn v-bind="props" variant="text">
-            Month: {{ selectedMonth }}
-            <v-icon right :icon="mdiMenuDown" />
-          </v-btn>
-        </template>
-        <v-list>
-          <v-list-item
-            v-for="month in months"
-            :key="month"
-            @click="selectMonth(month)"
-          >
-            <v-list-item-title>{{ month }}</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-    </div>
-    <br />
-    <v-row class="px-4 pb-4" justify="center">
+    <v-row class="px-4 pb-4 mt-5" justify="center">
       <v-col cols="12">
-        <v-data-table
-          :headers="headers"
-          :items="pay"
-          hide-default-footer
-          class="w-100"
-        >
-          <thead>
-            <tr>
-              <th class="text-center">Month</th>
-              <th class="text-center">Gross Pay</th>
-              <th class="text-center">Reimburse</th>
-              <th class="text-center">Deduction</th>
-              <th class="text-center">Take Home</th>
-              <th class="text-center">Payslip</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in pay" :key="item.month">
-              <td class="text-center">{{ selectedMonth }} 2025</td>
-              <td class="text-center">{{ item.grossPay }}</td>
-              <td class="text-center">{{ item.reimburse }}</td>
-              <td class="text-center">{{ item.deduction }}</td>
-              <td class="text-center">{{ item.takeHome }}</td>
-              <td class="text-center">
-                <v-btn variant="text" color="primary">Download</v-btn>
-              </td>
-            </tr>
-          </tbody>
+        <v-data-table :items="pay" :headers="headers" hide-default-footer>
+          <template v-slot:item.payslip="{ item }">
+            <v-btn variant="text" color="#1985A1" class="text-capitalize">
+              View
+            </v-btn>
+          </template>
         </v-data-table>
       </v-col>
     </v-row>
@@ -65,34 +23,52 @@
 
 <script setup>
 import { ref } from "vue";
-import { mdiLogout, mdiMenuDown } from "@mdi/js";
-
-const months = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
+import { mdiLogout, mdiMenuDown, mdiDownload } from "@mdi/js";
 
 const pay = ref([
   {
+    month: "January",
+    grossPay: "Rp 3.000.000",
+    reimburse: "Rp 0",
+    deduction: "Rp 1.000.000",
+    takeHome: "Rp 2.000.000",
+  },
+  {
+    month: "February",
+    grossPay: "Rp 1.000.000",
+    reimburse: "Rp 0",
+    deduction: "Rp 500.000",
+    takeHome: "Rp 500.000",
+  },
+  {
+    month: "March",
+    grossPay: "Rp 15.000.000",
+    reimburse: "Rp 0",
+    deduction: "Rp 1.000.000",
+    takeHome: "Rp 14.000.000",
+  },
+  {
+    month: "April",
+    grossPay: "Rp 5.000.000",
+    reimburse: "Rp 200.000",
+    deduction: "Rp 1.000.000",
+    takeHome: "Rp 4.200.000",
+  },
+  {
+    month: "May",
     grossPay: "Rp 3.000.000",
     reimburse: "Rp 0",
     deduction: "Rp 1.000.000",
     takeHome: "Rp 2.000.000",
   },
 ]);
-const selectedMonth = ref(months[0]);
 
-function selectMonth(month) {
-  selectedMonth.value = month;
-}
+const headers = [
+  { title: "Month", value: "month", align: "center", sortable: false },
+  { title: "Gross Pay", value: "grossPay", align: "center", sortable: true },
+  { title: "Reimburse", value: "reimburse", align: "center", sortable: true },
+  { title: "Deduction", value: "deduction", align: "center", sortable: true },
+  { title: "Take Home", value: "takeHome", align: "center", sortable: true },
+  { title: "Payslip", value: "payslip", align: "center", sortable: false },
+];
 </script>

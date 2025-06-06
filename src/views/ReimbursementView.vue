@@ -34,12 +34,84 @@
       <v-card-title>Total Reimbursement</v-card-title>
       <v-card-text class="text-h3 font-weight-bold">Rp 999.999.999</v-card-text>
     </v-card>
+
+    <v-data-table
+      :headers="headers"
+      hide-default-footer
+      :items="reimbursement"
+      class="px-4"
+    >
+      <template v-slot:item.date="{ value }">
+        {{ value.toLocaleDateString() }}
+      </template>
+
+      <template v-slot:item.bill="{ value }">
+        {{
+          value.toLocaleString("id-id", {
+            style: "currency",
+            currency: "IDR",
+          })
+        }}
+      </template>
+
+      <template v-slot:item.approved="{ value }">
+        {{
+          value.toLocaleString("id-id", {
+            style: "currency",
+            currency: "IDR",
+          })
+        }}
+      </template>
+
+      <template v-slot:item.detail="{ item }">
+        <v-btn icon flat size="sm" @click="console.log('test')">
+          <v-icon :icon="mdiEye" color="#1985A1" />
+        </v-btn>
+      </template>
+
+      <template v-slot:item.status="{ value }">
+        <v-chip :color="chipColor(value)">{{ value }}</v-chip>
+      </template>
+    </v-data-table>
   </v-card>
+
+  <v-dialog v-model="reimburseDialog"> </v-dialog>
 </template>
 
 <script setup>
-import { mdiFilter, mdiLogout } from "@mdi/js";
+import { mdiFilter, mdiLogout, mdiEye } from "@mdi/js";
 import { ref } from "vue";
 
 const currentMonth = ref("February");
+const reimburseDialog = ref(false);
+
+const headers = ref([
+  { title: "Claim Number", key: "claimId", align: "start", width: 175 },
+  { title: "Claim Date", key: "date", align: "center" },
+  { title: "Total Bill", key: "bill", align: "start" },
+  { title: "Approved Amount", key: "approved", align: "start" },
+  { title: "Status", key: "status", align: "center", sortable: false },
+  { title: "Detail", key: "detail", align: "center", sortable: false },
+]);
+
+const chipColor = (x) => {
+  if (x == "Approved") {
+    return "green";
+  } else if (x == "Pending") {
+    return "orange";
+  } else if (x == "Rejected") {
+    return "red";
+  }
+};
+
+const reimbursement = ref([
+  {
+    name: "Daniel Garyo",
+    claimId: "CL001",
+    date: new Date(),
+    bill: 20000,
+    approved: 10000,
+    status: "Approved",
+  },
+]);
 </script>

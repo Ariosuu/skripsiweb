@@ -11,7 +11,12 @@
       <v-col cols="12">
         <v-data-table :items="pay" :headers="headers" hide-default-footer>
           <template v-slot:item.payslip="{ item }">
-            <v-btn variant="text" color="#1985A1" class="text-capitalize">
+            <v-btn
+              variant="text"
+              color="#1985A1"
+              class="text-capitalize"
+              to="/payslipdetail"
+            >
               View
             </v-btn>
           </template>

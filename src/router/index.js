@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import Payslip from "../views/Payslip.vue";
+import PayslipDetail from "../views/PayslipDetail.vue";
 
 const routes = [
   {
@@ -12,6 +13,11 @@ const routes = [
     path: "/payslip",
     name: "Payslip",
     component: Payslip,
+  },
+  {
+    path: "/payslipdetail",
+    name: "PayslipDetail",
+    component: PayslipDetail,
   },
 ];
 

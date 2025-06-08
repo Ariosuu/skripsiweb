@@ -1,3 +1,11 @@
+<template>
+  <VueApexCharts
+    type="donut"
+    :options="chartOptions"
+    :series="props.series"
+  ></VueApexCharts>
+</template>
+
 <script setup>
 import VueApexCharts from "vue3-apexcharts";
 import { ref } from "vue";

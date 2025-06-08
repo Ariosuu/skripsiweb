@@ -15,7 +15,16 @@
               variant="text"
               color="#1985A1"
               class="text-capitalize"
-              to="/payslipdetail"
+              :to="{
+                name: 'PayslipDetail',
+                query: {
+                  month: item.month,
+                  grossPay: item.grossPay,
+                  reimburse: item.reimburse,
+                  deduction: item.deduction,
+                  takeHome: item.takeHome,
+                },
+              }"
             >
               View
             </v-btn>

@@ -31,7 +31,7 @@
     >
   </v-row>
 
-  <v-card class="ma-4 mt-0" height="96%">
+  <v-card class="ma-4 mt-0" height="90%">
     <v-card class="ma-4" color="#D9D9D9" flat>
       <v-card-title>Total Reimbursement</v-card-title>
       <v-card-text class="text-h3 font-weight-bold">Rp 999.999.999</v-card-text>
@@ -155,6 +155,18 @@
                 {{ reimburseForm.status }}
               </v-chip>
             </v-col>
+            <v-spacer></v-spacer>
+            <v-col v-if="!isNew" class="d-flex align-center justify-end">
+              Approved Amount :
+              <span class="font-weight-bold">
+                {{
+                  reimburseForm.approved.toLocaleString("id-id", {
+                    style: "currency",
+                    currency: "IDR",
+                  })
+                }}
+              </span>
+            </v-col>
           </v-row>
         </v-card-text>
         <v-card-actions v-if="isNew">
@@ -199,8 +211,8 @@ const reimbursement = ref([
     name: "Daniel Garyo",
     claimId: "CL001",
     date: new Date(),
-    bill: 20000,
-    approved: 10000,
+    bill: 2000000,
+    approved: 1000000,
     status: "Approved",
     notes: "Eric stole my food",
   },

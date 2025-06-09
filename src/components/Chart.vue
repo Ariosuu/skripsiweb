@@ -14,7 +14,7 @@ const props = defineProps({
   series: {
     type: Array,
     required: false,
-    default: [50, 0, 50],
+    default: [50, 50],
   },
 });
 
@@ -31,8 +31,8 @@ const chartOptions = ref({
   stroke: {
     width: 5,
   },
-  labels: ["Earning", "Reimbursement", "Deduction"],
-  colors: ["#69ff91", "#69bcff", "#ff6969"],
+  labels: ["Earning", "Deduction"],
+  colors: ["#69ff91", "#ff6969"],
   tooltip: {
     y: {
       formatter: function (val, opts) {
@@ -45,5 +45,5 @@ const chartOptions = ref({
   },
 });
 
-const series = ref([30, 40, 30]);
+const series = ref([30, 70]);
 </script>

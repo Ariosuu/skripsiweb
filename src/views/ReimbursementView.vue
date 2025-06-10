@@ -116,10 +116,12 @@
                     prepend-icon=""
                     :prepend-inner-icon="mdiCalendar"
                     hide-details
+                    :max="new Date().toLocaleDateString()"
+                    :rules="[rules.required]"
                     :readonly="!isNew"
                   ></v-date-input>
                 </v-col>
-                <v-col cols="12">
+                <v-col cols="12" class="pb-0">
                   <v-text-field
                     label="Amount"
                     v-model="reimburseForm.bill"
@@ -127,16 +129,18 @@
                     density="compact"
                     width="auto"
                     type="number"
-                    hide-details
+                    :rules="[rules.required, noZero]"
                     :readonly="!isNew"
                   ></v-text-field>
                 </v-col>
-                <v-col cols="12">
+                <v-col cols="12" class="pt-1 fill-height">
                   <v-textarea
                     label="Notes"
                     variant="outlined"
                     v-model="reimburseForm.notes"
                     hide-details
+                    no-resize
+                    rows="7"
                     :readonly="!isNew"
                   ></v-textarea>
                 </v-col>
@@ -144,9 +148,12 @@
             </v-col>
 
             <v-col cols="4">
-              <v-card color="#D9D9D9" flat class="fill-height">
-                <v-card-text>PLACE HOLDER</v-card-text>
-              </v-card>
+              <v-file-upload
+                density="default"
+                :icon="mdiUpload"
+                accept="image/png, image/jpeg, image/bmp"
+                height="300"
+              ></v-file-upload>
             </v-col>
 
             <v-col cols="3" v-if="!isNew">
@@ -178,14 +185,25 @@
 </template>
 
 <script setup>
-import { mdiFilter, mdiLogout, mdiEye, mdiClose, mdiCalendar } from "@mdi/js";
+import {
+  mdiFilter,
+  mdiLogout,
+  mdiEye,
+  mdiClose,
+  mdiCalendar,
+  mdiUpload,
+} from "@mdi/js";
 import { ref } from "vue";
 import { VDateInput } from "vuetify/labs/VDateInput";
+import { VFileUpload } from "vuetify/labs/VFileUpload";
+import { useRules } from "vuetify/labs/rules";
 
 const currentMonth = ref("February");
 const reimburseDialog = ref(false);
 const isValid = ref(false);
 const isNew = ref(false);
+
+const rules = useRules();
 
 const headers = ref([
   { title: "Claim Number", key: "claimId", align: "start", width: 175 },
@@ -196,6 +214,11 @@ const headers = ref([
   { title: "Detail", key: "detail", align: "center", sortable: false },
 ]);
 
+const noZero = (x) => {
+  if (x == 0) {
+    return "Amount Cannot Be Zero";
+  }
+};
 const chipColor = (x) => {
   if (x == "Approved") {
     return "green";
@@ -254,6 +277,7 @@ const closeDialog = () => {
 
 const test = () => {
   if (isValid.value) {
+    reimbursement.value.unshift(reimburseForm.value);
     closeDialog();
   }
 };

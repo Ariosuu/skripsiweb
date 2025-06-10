@@ -7,7 +7,7 @@ const route = useRoute();
 
 <template>
   <v-app>
-    <SideBar v-if="route.name !== 'Login'" />
+    <SideBar v-if="route.name !== 'Login' && route.name !== 'Signup'" />
     <v-main style="background-color: #dcdcdc; min-height: 100%">
       <router-view />
     </v-main>

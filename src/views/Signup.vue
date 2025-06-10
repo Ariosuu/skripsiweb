@@ -12,8 +12,10 @@
     <v-row align="center" justify="center" style="min-height: 100vh">
       <v-col cols="12" sm="8" md="4">
         <v-card class="pa-6" color="#4C5C68" elevation="3">
-          <h2 class="text-center mb-6" style="color: #dcdcdd">Welcome Back</h2>
-          <h2 class="text-center mb-6" style="color: #dcdcdd">Log In</h2>
+          <h2 class="text-center mb-6" style="color: #dcdcdd">
+            Create Account
+          </h2>
+          <h2 class="text-center mb-6" style="color: #dcdcdd">Sign Up</h2>
 
           <v-text-field
             v-model="email"
@@ -37,13 +39,11 @@
             class="mb-4"
             @click="handleSubmit"
           >
-            Log In
+            Sign Up
           </v-btn>
-
           <div class="d-flex justify-center mb-4">
-            <v-btn variant="text" to="/signup">Create an account</v-btn>
+            <v-btn variant="text" to="/login"> I have an account </v-btn>
           </div>
-
           <div v-if="error">{{ error }}</div>
         </v-card>
       </v-col>
@@ -54,7 +54,7 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import useLogin from "@/composables/useLogin";
+import useSignup from "@/composables/useSignup";
 
 const isSignup = ref(false);
 const email = ref("");
@@ -62,9 +62,10 @@ const password = ref("");
 
 const router = useRouter();
 
-const { login, error } = useLogin();
+const { signup, error } = useSignup();
+
 const handleSubmit = async () => {
-  await login(email.value, password.value);
+  await signup(email.value, password.value);
 
   if (!error.value) {
     router.push("/");

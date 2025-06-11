@@ -277,6 +277,7 @@ const closeDialog = () => {
 
 const test = () => {
   if (isValid.value) {
+    reimburseForm.value.bill = Number(reimburseForm.value.bill);
     reimbursement.value.unshift(reimburseForm.value);
     closeDialog();
   }

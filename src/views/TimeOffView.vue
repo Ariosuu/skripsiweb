@@ -155,7 +155,7 @@
               ></v-textarea>
             </v-col>
 
-            <v-col cols="3" v-if="isDetail">
+            <v-col cols="4" v-if="isDetail">
               Status :
               <v-chip :color="chipColor(request.status)">
                 {{ request.status }}
@@ -173,7 +173,7 @@
             </v-col>
           </v-row>
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions v-if="isRequest">
           <v-btn type="submit" text="Submit" color="#1985A1" variant="flat" />
         </v-card-actions>
       </v-card>

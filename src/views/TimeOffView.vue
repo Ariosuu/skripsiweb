@@ -303,7 +303,7 @@ const closeDialog = () => {
     type: null,
     fromTo: [],
     notes: "",
-    status: "",
+    status: "Pending",
   };
 };
 
@@ -318,7 +318,6 @@ const test = () => {
   if (isValid.value) {
     request.value.from = request.value.fromTo[0];
     request.value.to = request.value.fromTo[request.value.fromTo.length - 1];
-
     timeRequest.value.unshift(request.value);
     closeDialog();
   }

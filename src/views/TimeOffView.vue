@@ -183,12 +183,13 @@
 
 <script setup>
 import { mdiClose, mdiEye, mdiLogout } from "@mdi/js";
-import { ref, reactive } from "vue";
+import { ref } from "vue";
 import { VDateInput } from "vuetify/labs/VDateInput";
 import { useRules } from "vuetify/labs/rules";
 
 const dialog = ref(false);
 const leaveRemaining = ref(12);
+const leaveUse = ref(0);
 const timeRequest = ref([
   {
     name: "Daniel Garyo",
@@ -307,6 +308,21 @@ const closeDialog = () => {
   };
 };
 
+const leaveDaysUsed = () => {
+  leaveUse.value = 0;
+  for (let i = 0; i < request.value.fromTo.length; i++) {
+    // console.log(request.value.fromTo[i].getDay());
+    if (
+      request.value.fromTo[i].getDay() != 6 &&
+      request.value.fromTo[i].getDay() != 0
+    ) {
+      leaveUse.value += 1;
+    }
+  }
+
+  return leaveUse.value;
+};
+
 function allowedDates(val) {
   if (val.getDay() == 0 || val.getDay() == 6) {
     return false;
@@ -314,11 +330,14 @@ function allowedDates(val) {
     return true;
   }
 }
+
 const test = () => {
   if (isValid.value) {
     request.value.from = request.value.fromTo[0];
     request.value.to = request.value.fromTo[request.value.fromTo.length - 1];
     timeRequest.value.unshift(request.value);
+
+    leaveRemaining.value = leaveRemaining.value - leaveDaysUsed();
     closeDialog();
   }
 };

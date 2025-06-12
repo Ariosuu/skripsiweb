@@ -45,11 +45,11 @@
             </template>
 
             <template v-slot:item.from="{ value }">
-              {{ value.toLocaleDateString() }}
+              {{ value }}
             </template>
 
             <template v-slot:item.to="{ value }">
-              {{ value.toLocaleDateString() }}
+              {{ value }}
             </template>
 
             <template v-slot:item.status="{ value }">
@@ -187,7 +187,7 @@ import { ref } from "vue";
 import { VDateInput } from "vuetify/labs/VDateInput";
 import { useRules } from "vuetify/labs/rules";
 import { db } from "@/firebase/config";
-import { collection, getDocs, updateDoc } from "firebase/firestore";
+import { collection, getDocs, updateDoc, addDoc } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { signOut } from "firebase/auth";
 import { projectAuth } from "@/firebase/config";
@@ -222,30 +222,27 @@ const handleLogout = () => {
 };
 
 const colRef = collection(db, "employees");
+const reqRef = collection(db, "leaves");
 const leaveUse = ref(0);
-const timeRequest = ref([
-  {
-    name: "Daniel Garyo",
-    position: "Employee",
-    type: "Diddy Do It",
-    fromTo: [],
-    from: new Date(),
-    to: new Date(),
-    notes: "Baby Powder",
-    reason: "P.Diddy",
-    status: "Approved",
-  },
-  {
-    name: "Daniel Garyo",
-    position: "Employee",
-    type: "Diddy Do It",
-    from: new Date(),
-    to: new Date(),
-    notes: "Baby Powder",
-    reason: "P.Diddy",
-    status: "Rejected",
-  },
-]);
+const timeRequest = ref([]);
+
+getDocs(reqRef).then((snapshot) => {
+  let docs = [];
+  snapshot.docs.forEach((doc) => {
+    docs.push({ ...doc.data(), id: doc.id });
+  });
+  timeRequest.value = docs;
+  timeRequest.value = docs.map((item) => {
+    const newItem = { ...item };
+    if (newItem.from && newItem.from.toDate) {
+      newItem.from = newItem.from.toDate().toLocaleDateString();
+    }
+    if (newItem.to && newItem.to.toDate) {
+      newItem.to = newItem.to.toDate().toLocaleDateString();
+    }
+    return newItem;
+  });
+});
 
 const request = ref({
   name: reqName,
@@ -332,8 +329,8 @@ const closeDialog = () => {
   isDetail.value = false;
   dialog.value = false;
   request.value = {
-    name: "Daniel Garyo",
-    position: "Employee",
+    name: reqName,
+    position: reqPos,
     type: null,
     fromTo: [],
     notes: "",
@@ -382,6 +379,15 @@ const test = () => {
           await updateDoc(docSnap.ref, { timeOff: leaveRemaining.value });
         }
       });
+    });
+    addDoc(collection(db, "leaves"), {
+      name: request.value.name,
+      position: request.value.position,
+      type: request.value.type,
+      from: request.value.from,
+      to: request.value.to,
+      notes: request.value.notes,
+      status: request.value.status,
     });
     closeDialog();
   }

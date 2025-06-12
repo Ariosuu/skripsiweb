@@ -34,7 +34,12 @@
   <v-card class="ma-4 mt-0" height="90%">
     <v-card class="ma-4" color="#D9D9D9" flat>
       <v-card-title>Total Reimbursement</v-card-title>
-      <v-card-text class="text-h3 font-weight-bold">Rp 999.999.999</v-card-text>
+      <v-card-text class="text-h3 font-weight-bold">{{
+        total.toLocaleString("id-id", {
+          style: "currency",
+          currency: "IDR",
+        })
+      }}</v-card-text>
     </v-card>
 
     <v-data-table
@@ -94,7 +99,7 @@
 
         <v-card-text class="pa-4 pt-2">
           <v-row>
-            <v-col cols="8">
+            <v-col :cols="isNew ? 12 : 8">
               <v-row>
                 <v-col cols="12">
                   <v-text-field
@@ -117,7 +122,7 @@
                     :prepend-inner-icon="mdiCalendar"
                     hide-details
                     :max="new Date().toLocaleDateString()"
-                    :rules="[rules.required]"
+                    :rules="[rules.required('You have to fill this field')]"
                     :readonly="!isNew"
                   ></v-date-input>
                 </v-col>
@@ -129,11 +134,24 @@
                     density="compact"
                     width="auto"
                     type="number"
-                    :rules="[rules.required, noZero]"
+                    :rules="[
+                      rules.required('You have to fill this field'),
+                      noZero,
+                    ]"
                     :readonly="!isNew"
                   ></v-text-field>
                 </v-col>
-                <v-col cols="12" class="pt-1 fill-height">
+                <v-col cols="12" class="pt-1 pb-0" v-if="isNew">
+                  <v-file-input
+                    v-model="reimburseForm.receiptFile"
+                    variant="outlined"
+                    density="compact"
+                    :rules="[rules.required('You have to add a receipt')]"
+                    accept="image/*"
+                    label="Receipt"
+                  ></v-file-input>
+                </v-col>
+                <v-col cols="12" class="pt-1">
                   <v-textarea
                     label="Notes"
                     variant="outlined"
@@ -147,13 +165,8 @@
               </v-row>
             </v-col>
 
-            <v-col cols="4">
-              <v-file-upload
-                density="default"
-                :icon="mdiUpload"
-                accept="image/png, image/jpeg, image/bmp"
-                height="300"
-              ></v-file-upload>
+            <v-col cols="4" v-if="!isNew">
+              <v-img :src="reimburseForm.receiptImage"></v-img>
             </v-col>
 
             <v-col cols="3" v-if="!isNew">
@@ -193,7 +206,7 @@ import {
   mdiCalendar,
   mdiUpload,
 } from "@mdi/js";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { VDateInput } from "vuetify/labs/VDateInput";
 import { VFileUpload } from "vuetify/labs/VFileUpload";
 import { useRules } from "vuetify/labs/rules";
@@ -202,6 +215,7 @@ const currentMonth = ref("February");
 const reimburseDialog = ref(false);
 const isValid = ref(false);
 const isNew = ref(false);
+const total = ref(0);
 
 const rules = useRules();
 
@@ -238,6 +252,8 @@ const reimbursement = ref([
     approved: 1000000,
     status: "Approved",
     notes: "Eric stole my food",
+    receiptFile: null,
+    receiptImage: null,
   },
 ]);
 
@@ -249,7 +265,14 @@ const reimburseForm = ref({
   approved: 0,
   status: "Pending",
   notes: "",
+  receiptFile: null,
+  receiptImage: null,
 });
+
+const createImage = (file) => {
+  const url = URL.createObjectURL(file);
+  return url;
+};
 
 const newReimburse = () => {
   isNew.value = true;
@@ -260,6 +283,16 @@ const viewReimburse = (x) => {
   isNew.value = false;
   reimburseForm.value = reimbursement.value[x];
   reimburseDialog.value = true;
+};
+
+const sumApproved = (x) => {
+  total.value = 0;
+  for (let i = 0; i < reimbursement.value.length; i++) {
+    if (reimbursement.value[i].status == "Approved") {
+      total.value += reimbursement.value[i].approved;
+    }
+  }
+  console.log(total.value);
 };
 
 const closeDialog = () => {
@@ -278,8 +311,16 @@ const closeDialog = () => {
 const test = () => {
   if (isValid.value) {
     reimburseForm.value.bill = Number(reimburseForm.value.bill);
+    reimburseForm.value.receiptImage = createImage(
+      reimburseForm.value.receiptFile
+    );
+    console.log(reimburseForm.value);
     reimbursement.value.unshift(reimburseForm.value);
     closeDialog();
   }
 };
+
+onMounted(() => {
+  sumApproved();
+});
 </script>

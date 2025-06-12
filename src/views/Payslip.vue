@@ -1,19 +1,21 @@
 <template>
   <v-app-bar color="#C5C3C6" flat height="64">
-    <p color="#C5C3C6" class="text-h6 font-weight-bold pl-8">Pay > Payslip</p>
+    <p color="#C5C3C6" class="text-h6 font-weight-bold pl-8">Payslip</p>
     <v-spacer></v-spacer>
     <v-avatar size="32"> </v-avatar>
     <v-btn :icon="mdiLogout"> </v-btn>
   </v-app-bar>
 
   <v-card class="ma-5" height="95%">
-    <v-row class="px-4 pb-4 mt-5" justify="center">
+    <v-row class="pa-2" justify="center">
       <v-col cols="12">
         <v-data-table :items="pay" :headers="headers" hide-default-footer>
+          <!-- set button on table to be eye icon -->
           <template v-slot:item.payslip="{ item }">
             <v-btn
-              variant="text"
-              color="#1985A1"
+              icon
+              flat
+              size="sm"
               class="text-capitalize"
               :to="{
                 name: 'PayslipDetail',
@@ -26,8 +28,44 @@
                 },
               }"
             >
-              View
+              <v-icon :icon="mdiEye" color="#1985A1" />
             </v-btn>
+          </template>
+
+          <!-- Set value in table to Rp currency -->
+          <template v-slot:item.grossPay="{ value }">
+            {{
+              value.toLocaleString("id-id", {
+                style: "currency",
+                currency: "IDR",
+              })
+            }}
+          </template>
+
+          <!-- Set value in table to Rp currency -->
+          <template v-slot:item.reimburse="{ value }">
+            {{
+              value.toLocaleString("id-id", {
+                style: "currency",
+                currency: "IDR",
+              })
+            }}
+          </template>
+          <template v-slot:item.deduction="{ value }">
+            {{
+              value.toLocaleString("id-id", {
+                style: "currency",
+                currency: "IDR",
+              })
+            }}
+          </template>
+          <template v-slot:item.takeHome="{ value }">
+            {{
+              value.toLocaleString("id-id", {
+                style: "currency",
+                currency: "IDR",
+              })
+            }}
           </template>
         </v-data-table>
       </v-col>
@@ -37,7 +75,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { mdiLogout, mdiMenuDown, mdiDownload } from "@mdi/js";
+import { mdiLogout, mdiMenuDown, mdiDownload, mdiEye } from "@mdi/js";
 
 const pay = ref([
   {
@@ -78,11 +116,11 @@ const pay = ref([
 ]);
 
 const headers = [
-  { title: "Month", value: "month", align: "center", sortable: false },
+  { title: "Month", value: "month", align: "start", sortable: false },
   { title: "Gross Pay", value: "grossPay", align: "center", sortable: true },
   { title: "Reimburse", value: "reimburse", align: "center", sortable: true },
   { title: "Deduction", value: "deduction", align: "center", sortable: true },
   { title: "Take Home", value: "takeHome", align: "center", sortable: true },
-  { title: "Payslip", value: "payslip", align: "center", sortable: false },
+  { title: "Detail", value: "payslip", align: "center", sortable: false },
 ];
 </script>

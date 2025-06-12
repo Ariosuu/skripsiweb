@@ -8,10 +8,10 @@
     <v-btn :icon="mdiLogout"> </v-btn>
   </v-app-bar>
 
-  <v-card class="ma-5" height="95%">
-    <h2 class="ma-4 ml-6">Payslip for {{ month }}</h2>
+  <v-card class="ma-5 pa-4">
+    <h2>Payslip for {{ month }}</h2>
 
-    <v-card class="ma-4" color="#D9D9D9" flat>
+    <v-card class="my-4" color="#D9D9D9" flat>
       <v-card-text>
         <v-row>
           <v-col cols="2">
@@ -50,9 +50,9 @@
       </v-card-text>
     </v-card>
 
-    <h2 class="ml-6 mb-2">Payslip Details</h2>
-    <v-divider color="black" thickness="1" class="mx-5"></v-divider>
-    <v-card class="ma-4" color="#D9D9D9" flat>
+    <h2>Payslip Details</h2>
+    <v-divider color="black" thickness="1"></v-divider>
+    <v-card color="#D9D9D9" flat>
       <v-col cols="12">
         <v-row>
           <v-col cols="3">
@@ -82,7 +82,7 @@
     </v-card>
 
     <v-card
-      class="ma-4"
+      class="my-4"
       flat
       variant="outlined"
       height="250px"
@@ -121,11 +121,15 @@
         <v-row>
           <v-col cols="6" class="pa-0">
             <v-card height="150px" flat class="pl-2">
-              <v-card-text class="d-flex justify-space-between align-center">
+              <v-card-text
+                class="d-flex justify-space-between align-center py-2"
+              >
                 <span>Basic</span>
                 <span>{{ formatIDR(grossPay) }}</span>
               </v-card-text>
-              <v-card-text class="d-flex justify-space-between align-center">
+              <v-card-text
+                class="d-flex justify-space-between align-center py-2"
+              >
                 <span>Reimburse</span>
                 <span>{{ formatIDR(reimburse) }}</span>
               </v-card-text>
@@ -136,7 +140,9 @@
           </v-col>
           <v-col cols="6" class="pa-0">
             <v-card height="150px" flat class="pl-2">
-              <v-card-text class="d-flex justify-space-between align-center">
+              <v-card-text
+                class="d-flex justify-space-between align-center py-2"
+              >
                 <span>Emergency Loan </span>
                 <span>{{ formatIDR(deduction) }}</span>
               </v-card-text>
@@ -171,8 +177,8 @@
         </v-row>
       </v-col>
     </v-card>
-    <span class="text-h5 ma-6 font-weight-bold">Net Pay:</span>
-    <span class="mb-4">{{ formatIDR(takeHome) }}</span>
+    <span class="text-h6 my-6">Net Pay : </span>
+    <span class="text-h5 mb-4 font-weight-bold">{{ formatIDR(takeHome) }}</span>
   </v-card>
 </template>
 

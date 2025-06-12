@@ -170,6 +170,9 @@ import {
 
 import { projectAuth } from "@/firebase/config";
 import { signOut } from "firebase/auth";
+import getUser from "@/composables/getUser";
+
+const { user } = getUser();
 
 const handleLogout = () => {
   signOut(projectAuth);

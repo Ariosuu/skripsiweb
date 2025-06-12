@@ -3,7 +3,7 @@
     <p color="#C5C3C6" class="text-h6 font-weight-bold pl-8">Time Off</p>
     <v-spacer></v-spacer>
     <v-avatar size="32"> </v-avatar>
-    <v-btn :icon="mdiLogout"> </v-btn>
+    <v-btn :icon="mdiLogout" @click="handleLogout" to="/login"> </v-btn>
   </v-app-bar>
 
   <v-card class="ma-4" height="95%">
@@ -17,12 +17,7 @@
             </span>
 
             <span>
-              <v-btn
-                color="#1985A1"
-                flat
-                @click="openDialogRequest()"
-                :disabled="leaveRemaining == 0"
-              >
+              <v-btn color="#1985A1" flat @click="openDialogRequest()">
                 Request Leave
               </v-btn>
             </span>
@@ -191,9 +186,42 @@ import { mdiClose, mdiEye, mdiLogout } from "@mdi/js";
 import { ref } from "vue";
 import { VDateInput } from "vuetify/labs/VDateInput";
 import { useRules } from "vuetify/labs/rules";
+import { db } from "@/firebase/config";
+import { collection, getDocs, updateDoc } from "firebase/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { signOut } from "firebase/auth";
+import { projectAuth } from "@/firebase/config";
 
 const dialog = ref(false);
-const leaveRemaining = ref(12);
+const leaveRemaining = ref();
+const auth = getAuth();
+const reqName = ref();
+const reqPos = ref();
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    getDocs(collection(db, "employees")).then((snapshot) => {
+      let docs = [];
+      snapshot.docs.forEach((doc) => {
+        docs.push({ ...doc.data(), id: doc.id });
+      });
+      const currentUser = docs.find(
+        (doc) => doc.uid === user.uid || doc.email === user.email
+      );
+      if (currentUser) {
+        leaveRemaining.value = currentUser.timeOff;
+        reqName.value = currentUser.firstName + " " + currentUser.lastName;
+        reqPos.value = currentUser.jobTitle;
+      }
+    });
+  }
+});
+
+const handleLogout = () => {
+  signOut(projectAuth);
+};
+
+const colRef = collection(db, "employees");
 const leaveUse = ref(0);
 const timeRequest = ref([
   {
@@ -218,9 +246,10 @@ const timeRequest = ref([
     status: "Rejected",
   },
 ]);
+
 const request = ref({
-  name: "Daniel Garyo",
-  position: "Employee",
+  name: reqName,
+  position: reqPos,
   type: null,
   fromTo: [],
   from: new Date(),
@@ -233,7 +262,6 @@ const leaveType = ["Sick", "Family", "Maternity"];
 const isRequest = ref(false);
 const isDetail = ref(false);
 const isValid = ref(false);
-
 const rules = useRules();
 
 const headers = ref([
@@ -343,6 +371,18 @@ const test = () => {
     timeRequest.value.unshift(request.value);
 
     leaveRemaining.value = leaveRemaining.value - leaveDaysUsed();
+
+    getDocs(colRef).then((snapshot) => {
+      snapshot.docs.forEach(async (docSnap) => {
+        const data = docSnap.data();
+        if (
+          (auth.currentUser && data.uid === auth.currentUser.uid) ||
+          (auth.currentUser && data.email === auth.currentUser.email)
+        ) {
+          await updateDoc(docSnap.ref, { timeOff: leaveRemaining.value });
+        }
+      });
+    });
     closeDialog();
   }
 };

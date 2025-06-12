@@ -17,7 +17,12 @@
             </span>
 
             <span>
-              <v-btn color="#1985A1" flat @click="openDialogRequest()">
+              <v-btn
+                color="#1985A1"
+                flat
+                @click="openDialogRequest()"
+                :disabled="leaveRemaining == 0"
+              >
                 Request Leave
               </v-btn>
             </span>

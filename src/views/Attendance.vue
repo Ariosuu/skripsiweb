@@ -14,8 +14,8 @@
             <v-avatar color="surface-variant" size="x-large"> </v-avatar>
           </v-col>
           <v-col cols="9">
-            <v-card-title>Eric Sebastian Chandra</v-card-title>
-            <v-card-subtitle>Employee</v-card-subtitle>
+            <v-card-title>{{ userName }}</v-card-title>
+            <v-card-subtitle>{{ userPos }}</v-card-subtitle>
           </v-col>
           <v-col cols="1">
             <v-btn variant="text" block base-color="#46494C" @click="clockIn">
@@ -55,27 +55,9 @@
       <v-col cols="12">
         <v-data-table
           :headers="headers"
-          :items="timeRequest"
+          :items="[...attendanceRecords, ...newAttendance]"
           hide-default-footer
         >
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Clocked In</th>
-              <th>Clocked Out</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(record, index) in attendanceRecords" :key="index">
-              <td>{{ record.date }}</td>
-              <td>{{ record.clockedIn }}</td>
-              <td>{{ record.clockedOut }}</td>
-              <td>
-                {{ record.status }}
-              </td>
-            </tr>
-          </tbody>
         </v-data-table>
       </v-col>
     </v-row>
@@ -97,8 +79,50 @@ import {
   mdiHome,
 } from "@mdi/js";
 
+import { db } from "@/firebase/config";
+import { collection, getDocs, updateDoc, addDoc } from "firebase/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { signOut } from "firebase/auth";
+import { projectAuth } from "@/firebase/config";
+
+const userName = ref();
+const userPos = ref();
+const auth = getAuth();
+const userRef = collection(db, "employees");
+const ID = ref();
+const newAttendance = ref([]);
 const attendanceRecords = ref([]);
 
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    getDocs(userRef).then((snapshot) => {
+      let docs = [];
+      snapshot.docs.forEach((doc) => {
+        docs.push({ ...doc.data(), id: doc.id });
+      });
+      const currentUser = docs.find(
+        (doc) => doc.uid === user.uid || doc.email === user.email
+      );
+      if (currentUser) {
+        userName.value = currentUser.firstName + " " + currentUser.lastName;
+        userPos.value = currentUser.jobTitle;
+        ID.value = currentUser.id;
+
+        getDocs(collection(db, "employees", ID.value, "attendance")).then(
+          (snapshot) => {
+            let docs = [];
+            snapshot.docs.forEach((doc) => {
+              docs.push({ ...doc.data(), id: doc.id });
+            });
+            attendanceRecords.value = docs;
+          }
+        );
+      } else {
+        console.error("User not found in the database.");
+      }
+    });
+  }
+});
 const formatDate = () => {
   const date = new Date();
   const day = String(date.getDate()).padStart(2, "0");
@@ -125,7 +149,7 @@ const clockIn = () => {
 
   const status = timeDecimal > 9 ? "Late" : "On Time";
 
-  attendanceRecords.value.push({
+  newAttendance.value.push({
     date: formatDate(),
     clockedIn: time,
     clockedOut: "-",
@@ -134,12 +158,29 @@ const clockIn = () => {
 };
 
 const clockOut = () => {
-  if (attendanceRecords.value.length > 0) {
-    const lastRecord =
-      attendanceRecords.value[attendanceRecords.value.length - 1];
+  if (newAttendance.value.length > 0) {
+    const lastRecord = newAttendance.value[newAttendance.value.length - 1];
     if (lastRecord.clockedOut === "-") {
       lastRecord.clockedOut = formatTime(new Date());
+      recordData();
     }
   }
 };
+
+const recordData = () => {
+  const lastRecord = newAttendance.value[newAttendance.value.length - 1];
+  addDoc(collection(db, "employees", ID.value, "attendance"), {
+    date: lastRecord.date,
+    clockedIn: lastRecord.clockedIn,
+    clockedOut: lastRecord.clockedOut,
+    status: lastRecord.status,
+  });
+};
+
+const headers = ref([
+  { title: "Date", key: "date", align: "start" },
+  { title: "Clocked In", key: "clockedIn", align: "start", sortable: false },
+  { title: "Clocked Out", key: "clockedOut", align: "start", sortable: false },
+  { title: "Status", key: "status", align: "start", sortable: false },
+]);
 </script>

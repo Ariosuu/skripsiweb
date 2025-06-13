@@ -1,17 +1,32 @@
 <template>
   <v-navigation-drawer color="#46494C" :permanent="mdAndUp">
-    <v-list density="compact" nav>
+    <v-list density="compact" nav :opened="['Pay']">
       <v-list-item class="text-h6">Company Name</v-list-item>
       <v-divider class="pb-2" />
-      <v-list-item
-        link
-        v-for="item in items"
-        router
-        :to="item.route"
-        :prepend-icon="item.icon"
-      >
-        <v-list-item-title>{{ item.title }}</v-list-item-title>
-      </v-list-item>
+      <v-container class="pa-0" v-for="item in items">
+        <v-list-item
+          v-if="!item.sub"
+          link
+          router
+          :to="item.route"
+          :prepend-icon="item.icon"
+        >
+          <v-list-item-title>{{ item.title }}</v-list-item-title>
+        </v-list-item>
+
+        <v-list-group v-else :value="item.title">
+          <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props" :prepend-icon="item.icon">
+              <v-list-item-title>
+                {{ item.title }}
+              </v-list-item-title>
+            </v-list-item>
+          </template>
+          <v-list-item v-for="sub in item.sub" link router :to="sub.route">
+            <v-list-item-title>{{ sub.title }}</v-list-item-title>
+          </v-list-item>
+        </v-list-group>
+      </v-container>
     </v-list>
   </v-navigation-drawer>
 </template>
@@ -30,7 +45,15 @@ import {
 
 const items = ref([
   { icon: mdiHome, title: "Home", route: "/" },
-  { icon: mdiCurrencyUsd, title: "Pay", route: "/pay" },
+  {
+    icon: mdiCurrencyUsd,
+    title: "Pay",
+    sub: [
+      { title: "Salary Details", route: "/salary-detail" },
+      { title: "PaySlip", route: "/payslip" },
+      { title: "Reimbursement", route: "/reimbursement" },
+    ],
+  },
   { icon: mdiAccountCheck, title: "Attendance", route: "/attendance" },
   { icon: mdiClockTimeFour, title: "Time Off", route: "/timeoff" },
   { icon: mdiFormatListBulleted, title: "Training", route: "/training" },

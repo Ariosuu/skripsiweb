@@ -6,70 +6,73 @@
     <v-btn :icon="mdiLogout"> </v-btn>
   </v-app-bar>
 
-  <v-card class="ma-5" height="95%">
-    <v-row class="pa-2" justify="center">
-      <v-col cols="12">
-        <v-data-table :items="pay" :headers="headers" hide-default-footer>
-          <!-- set button on table to be eye icon -->
-          <template v-slot:item.payslip="{ item }">
-            <v-btn
-              icon
-              flat
-              size="sm"
-              class="text-capitalize"
-              :to="{
-                name: 'PayslipDetail',
-                query: {
-                  month: item.month,
-                  grossPay: item.grossPay,
-                  reimburse: item.reimburse,
-                  deduction: item.deduction,
-                  takeHome: item.takeHome,
-                },
-              }"
-            >
-              <v-icon :icon="mdiEye" color="#1985A1" />
-            </v-btn>
-          </template>
+  <v-card max-height="800" class="ma-4">
+    <v-data-table
+      :items="pay"
+      :headers="headers"
+      hide-default-footer
+      class="px-4"
+      height="800"
+      items-per-page="-1"
+    >
+      <!-- set button on table to be eye icon -->
+      <template v-slot:item.payslip="{ item }">
+        <v-btn
+          icon
+          flat
+          size="sm"
+          class="text-capitalize"
+          :to="{
+            name: 'PayslipDetail',
+            query: {
+              month: item.month,
+              grossPay: item.grossPay,
+              reimburse: item.reimburse,
+              deduction: item.deduction,
+              takeHome: item.takeHome,
+            },
+          }"
+        >
+          <v-icon :icon="mdiEye" color="#1985A1" />
+        </v-btn>
+      </template>
 
-          <!-- Set value in table to Rp currency -->
-          <template v-slot:item.grossPay="{ value }">
-            {{
-              value.toLocaleString("id-id", {
-                style: "currency",
-                currency: "IDR",
-              })
-            }}
-          </template>
+      <!-- Set value in table to Rp currency -->
+      <template v-slot:item.grossPay="{ value }">
+        {{
+          value.toLocaleString("id-id", {
+            style: "currency",
+            currency: "IDR",
+          })
+        }}
+      </template>
 
-          <!-- Set value in table to Rp currency -->
-          <template v-slot:item.reimburse="{ value }">
-            {{
-              value.toLocaleString("id-id", {
-                style: "currency",
-                currency: "IDR",
-              })
-            }}
-          </template>
-          <template v-slot:item.deduction="{ value }">
-            {{
-              value.toLocaleString("id-id", {
-                style: "currency",
-                currency: "IDR",
-              })
-            }}
-          </template>
-          <template v-slot:item.takeHome="{ value }">
-            {{
-              value.toLocaleString("id-id", {
-                style: "currency",
-                currency: "IDR",
-              })
-            }}
-          </template>
-        </v-data-table>
-      </v-col>
-    </v-row>
+      <!-- Set value in table to Rp currency -->
+      <template v-slot:item.reimburse="{ value }">
+        {{
+          value.toLocaleString("id-id", {
+            style: "currency",
+            currency: "IDR",
+          })
+        }}
+      </template>
+      <template v-slot:item.deduction="{ value }">
+        {{
+          value.toLocaleString("id-id", {
+            style: "currency",
+            currency: "IDR",
+          })
+        }}
+      </template>
+      <template v-slot:item.takeHome="{ value }">
+        {{
+          value.toLocaleString("id-id", {
+            style: "currency",
+            currency: "IDR",
+          })
+        }}
+      </template>
+    </v-data-table>
   </v-card>
 </template>
 

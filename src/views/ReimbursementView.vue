@@ -10,7 +10,20 @@
     <v-col cols="4">
       <v-select
         class="ma-4"
-        :items="['January', 'February']"
+        :items="[
+          'January',
+          'February',
+          'March',
+          'April',
+          'May',
+          'June',
+          'July',
+          'August',
+          'September',
+          'October',
+          'November',
+          'December',
+        ]"
         flat
         variant="solo"
         density="compact"
@@ -31,7 +44,7 @@
     >
   </v-row>
 
-  <v-card class="ma-4 mt-0" height="90%">
+  <v-card class="ma-4 mt-0" max-height="750">
     <v-card class="ma-4" color="#D9D9D9" flat>
       <v-card-title>Total Reimbursement</v-card-title>
       <v-card-text class="text-h3 font-weight-bold">{{
@@ -44,9 +57,11 @@
 
     <v-data-table
       :headers="headers"
-      hide-default-footer
       :items="reimbursement"
       class="px-4"
+      height="600"
+      hide-default-footer
+      items-per-page="-1"
     >
       <template v-slot:item.date="{ value }">
         {{ value.toLocaleDateString() }}

@@ -1,81 +1,64 @@
 <template>
   <v-app-bar color="#C5C3C6" flat height="64">
-    <p color="#C5C3C6" class="text-h6 font-weight-bold pl-8">Home > Training</p>
+    <p color="#C5C3C6" class="text-h6 font-weight-bold pl-8">My Training</p>
     <v-spacer></v-spacer>
     <v-avatar size="32"> </v-avatar>
     <v-btn :icon="mdiLogout"> </v-btn>
   </v-app-bar>
 
-  <v-col cols="12" class="pl-10 pt-10">
-    <v-row align="center">
-      <v-col>
-        <h1 class="text-grey-darken-3">View My Training</h1>
-      </v-col>
-      <v-col cols="auto" class="d-flex justify-end">
-        <v-text-field
-          v-model="search"
-          :loading="loading"
-          :append-inner-icon="mdiMagnify"
-          density="compact"
-          label="Search Training"
-          variant="solo"
-          hide-details
-          single-line
-          @click:append-inner="
-            () => {
-              applySearch();
-              onClick();
-            }
-          "
-          @keyup.enter="
-            () => {
-              applySearch();
-              onClick();
-            }
-          "
-          style="max-width: 340px; min-width: 200px; margin-right: 16px"
-        >
-        </v-text-field>
-      </v-col>
-    </v-row>
-  </v-col>
+  <v-row>
+    <v-col cols="6">
+      <v-text-field
+        class="ma-4"
+        v-model="search"
+        :loading="loading"
+        :append-inner-icon="mdiMagnify"
+        density="compact"
+        label="Search Training"
+        variant="solo"
+        hide-details
+        single-line
+        flat
+        @click:append-inner="
+          () => {
+            applySearch();
+            onClick();
+          }
+        "
+        @keyup.enter="
+          () => {
+            applySearch();
+            onClick();
+          }
+        "
+        style="max-width: 340px; min-width: 200px; margin-right: 16px"
+      >
+      </v-text-field>
+    </v-col>
+  </v-row>
 
-  <v-card height="720" class="pa-4 ml-5 mr-5" color="#FFFFFF">
-    <v-table>
-      <thead>
-        <tr>
-          <th>Training Name</th>
-          <th>Training Date</th>
-          <th>Training Hours</th>
-          <th>Trainer Name</th>
-          <th>Training Type</th>
-          <th>Trainer Score</th>
-          <th>Trainer Evaluation</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(item, index) in filteredItems" :key="index">
-          <td>{{ item.Tname }}</td>
-          <td>{{ item.date }}</td>
-          <td>{{ item.durat }}</td>
-          <td>{{ item.trainer }}</td>
-          <td>{{ item.type }}</td>
-          <td>{{ item.score }}</td>
-          <td>{{ item.status }}</td>
-          <td>
-            <v-btn
-              color="#1694CF"
-              style="color: #fff"
-              size="small"
-              variant="flat"
-            >
-              Download
+  <v-card min-height="90%" class="ma-4 mt-0" color="#FFFFFF">
+    <v-data-table
+      :headers="headers"
+      hide-default-footer
+      :items="items"
+      class="px-4"
+    >
+      <template v-slot:item.date="{ value }">
+        {{ value.toLocaleDateString() }}
+      </template>
+      <template v-slot:item.duration="{ value }"> {{ value }} minute </template>
+
+      <template v-slot:item.view="{ value }">
+        <v-tooltip text="Go To Training">
+          <template v-slot:activator="{ props }">
+            <v-btn icon flat v-bind="props" size="sm">
+              <v-icon :icon="mdiChevronRight" color="#1985A1" />
             </v-btn>
-          </td>
-        </tr>
-      </tbody>
-    </v-table>
+          </template>
+        </v-tooltip>
+      </template>
+    </v-data-table>
   </v-card>
 </template>
 
@@ -90,24 +73,29 @@ import {
 
 import { ref } from "vue";
 
+const headers = ref([
+  { title: "Training Name", key: "trainingName", align: "start", width: 200 },
+  { title: "Date", key: "date", align: "center" },
+  { title: "Duration", key: "duration", align: "center" },
+  { title: "Trainer", key: "trainer", align: "start", width: 200 },
+  { title: "Type", key: "type", align: "center" },
+  { title: "", key: "view", align: "end", sortable: "false" },
+]);
+
 const items = ref([
   {
-    Tname: "Building Safety",
-    date: "11/9/2001",
-    durat: 90,
+    trainingName: "Building Safety",
+    date: new Date(),
+    duration: 90,
     trainer: "John K.",
     type: "Practical Training",
-    score: 100,
-    status: "In Progress",
   },
   {
-    Tname: "Self Discipline",
-    date: "11/9/2001",
-    durat: 70,
+    trainingName: "Self Discipline",
+    date: new Date(),
+    duration: 70,
     trainer: "John F.",
     type: "Practical Training",
-    score: 100,
-    status: "Completed",
   },
 ]);
 

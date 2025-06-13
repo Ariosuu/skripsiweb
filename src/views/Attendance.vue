@@ -6,7 +6,7 @@
     <v-btn :icon="mdiLogout"> </v-btn>
   </v-app-bar>
 
-  <v-card height="800" class="pa-4 ml-5 mr-5 mt-5" no-gutters>
+  <v-card max-height="800" class="pa-4 ml-5 mr-5 mt-5" no-gutters>
     <v-card color="#D9D9D9" class="pa-4" no-gutters>
       <v-col cols="12">
         <v-row align="center">
@@ -49,14 +49,16 @@
       </v-col>
     </v-card>
 
-    <h3 class="text-h6 ml-7 mt-10 mb-5">Attendance Log</h3>
+    <h3 class="text-h6 ml-2 mt-4">Attendance Log</h3>
 
-    <v-row class="px-4 pb-4">
+    <v-row>
       <v-col cols="12">
         <v-data-table
           :headers="headers"
           :items="[...attendanceRecords, ...newAttendance]"
           hide-default-footer
+          class="px-4"
+          height="600"
         >
         </v-data-table>
       </v-col>

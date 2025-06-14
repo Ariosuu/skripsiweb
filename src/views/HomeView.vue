@@ -18,7 +18,7 @@
       <v-avatar size="100" rounded="0" class="mr-4"> </v-avatar>
       <div class="white--text">
         <div class="text-h6 font-weight-bold">Welcome back,</div>
-        <div class="text-h5 font-weight-bold">Sedan Hussein</div>
+        <div class="text-h5 font-weight-bold">{{ userName }}</div>
         <v-btn
           color="#DCDCDD"
           text
@@ -167,13 +167,42 @@ import {
   mdiLogout,
   mdiLogoutVariant,
 } from "@mdi/js";
-
+import { ref } from "vue";
 import { projectAuth } from "@/firebase/config";
-import { signOut } from "firebase/auth";
 import getUser from "@/composables/getUser";
+import getCollection from "@/composables/getCollection";
+import { db } from "@/firebase/config";
+import { collection, getDocs, updateDoc, addDoc } from "firebase/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { signOut } from "firebase/auth";
 
+const userName = ref();
+const userPos = ref();
+const auth = getAuth();
+const userRef = collection(db, "employees");
+const ID = ref();
 const { user } = getUser();
 
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    getDocs(userRef).then((snapshot) => {
+      let docs = [];
+      snapshot.docs.forEach((doc) => {
+        docs.push({ ...doc.data(), id: doc.id });
+      });
+      const currentUser = docs.find(
+        (doc) => doc.uid === user.uid || doc.email === user.email
+      );
+      if (currentUser) {
+        userName.value = currentUser.firstName + " " + currentUser.lastName;
+        userPos.value = currentUser.jobTitle;
+        ID.value = currentUser.id;
+      } else {
+        console.error("User not found in the database.");
+      }
+    });
+  }
+});
 const handleLogout = () => {
   signOut(projectAuth);
 };

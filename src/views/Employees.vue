@@ -9,6 +9,7 @@
     <v-col cols="3">
       <v-card-text>
         <v-text-field
+          v-model="search"
           :loading="loading"
           :append-inner-icon="mdiMagnify"
           density="compact"
@@ -27,17 +28,17 @@
   <v-card max-height="750" class="ma-4 mt-0" color="#FFFFFF">
     <v-data-table
       :headers="headers"
-      :items="items"
+      :items="filteredItems"
       class="px-4"
       height="750"
       hide-default-footer
       items-per-page="-1"
     >
-      <template v-slot:item.dob="{ value }">
-        {{ value.toLocaleDateString() }}
+      <template v-slot:item.formattedDate="{ value }">
+        {{ value }}
       </template>
 
-      <template v-slot:item.status="{ value }">
+      <template v-slot:item.empStatus="{ value }">
         <v-chip :color="chipColor(value)">{{ value }}</v-chip>
       </template>
 
@@ -51,7 +52,17 @@
               size="sm"
               :to="{
                 name: 'Employee Profile',
-                query: {},
+                query: {
+                  fullName: item.fullName,
+                  firstName: item.firstName,
+                  lastName: item.lastName,
+                  jobDivision: item.jobDivision,
+                  jobTitle: item.jobTitle,
+                  status: item.empStatus,
+                  dateOfBirth: item.formattedDate,
+                  phoneNumber: item.phoneNumber,
+                  email: item.email,
+                },
               }"
             >
               <v-icon :icon="mdiEye" color="#1985A1" />
@@ -74,39 +85,79 @@ import {
   mdiEye,
 } from "@mdi/js";
 
-import { ref } from "vue";
-
-const headers = ref([
-  { title: "Name", key: "name", align: "start", width: 320 },
-  { title: "Division", key: "div", align: "start" },
-  { title: "Position", key: "pos", align: "start" },
-  { title: "Date Of Birth", key: "dob", align: "center" },
-  { title: "Contact Number", key: "contact", align: "start", width: 200 },
-  { title: "Status", key: "status", align: "center", sortable: false },
-  { title: "", key: "view", align: "center", sortable: false },
-]);
-
-const items = ref([
-  {
-    name: "Eric Sebastian Chandra",
-    div: "Human Resource",
-    pos: "Team Leader",
-    dob: new Date("06/12/2002"),
-    contact: "08118300806",
-    status: "Active",
-  },
-  {
-    name: "Daniel Garyo",
-    div: "IT Development",
-    pos: "UX Designer",
-    dob: new Date("06/12/2002"),
-    contact: "08118300806",
-    status: "Active",
-  },
-]);
+import { ref, watch, computed } from "vue";
+import { db } from "@/firebase/config";
+import { Timestamp } from "firebase/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { signOut } from "firebase/auth";
+import { projectAuth } from "@/firebase/config";
+import getCollection from "@/composables/getCollection";
 
 const loaded = ref(false);
 const loading = ref(false);
+const search = ref("");
+
+const auth = getAuth();
+const { documents: items } = getCollection("employees");
+
+watch(
+  items,
+  (newItems) => {
+    if (newItems) {
+      newItems.forEach((item) => {
+        if (item.dateofBirth instanceof Timestamp) {
+          item.formattedDate = item.dateofBirth
+            .toDate()
+            .toLocaleDateString("en-US");
+        } else {
+          item.formattedDate = "N/A";
+        }
+      });
+    }
+  },
+  { immediate: true }
+);
+
+watch(
+  items,
+  (newItems) => {
+    if (newItems) {
+      newItems.forEach((item) => {
+        if (item.firstName && item.lastName) {
+          item.fullName = item.firstName + " " + item.lastName;
+        } else {
+          item.fullName = item.firstName || item.lastName || "N/A";
+        }
+      });
+    }
+  },
+  { immediate: true }
+);
+
+const filteredItems = computed(() => {
+  if (!search.value) {
+    return items.value;
+  }
+  const searchTerm = search.value.toLowerCase();
+  return items.value.filter((item) => {
+    return Object.values(item).some((value) => {
+      if (typeof value === "string") {
+        return value.toLowerCase().includes(searchTerm);
+      }
+      return false;
+    });
+  });
+});
+
+const headers = ref([
+  { title: "Name", key: "fullName", align: "start", width: 320 },
+  { title: "Division", key: "jobDivision", align: "start" },
+  { title: "Position", key: "jobTitle", align: "start" },
+  { title: "Date Of Birth", key: "formattedDate", align: "center" },
+  { title: "Contact Number", key: "phoneNumber", align: "start", width: 200 },
+  { title: "Status", key: "empStatus", align: "center", sortable: false },
+  { title: "", key: "view", align: "center", sortable: false },
+]);
 
 const chipColor = (x) => {
   if (x == "Active") {

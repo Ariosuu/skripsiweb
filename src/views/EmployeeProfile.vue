@@ -27,10 +27,10 @@
             <v-col class="d-flex align-center">
               <v-row>
                 <v-col cols="12">
-                  <span class="text-h4"> Employee Name </span>
+                  <span class="text-h4"> {{ fullName }} </span>
                   <br />
                   <span class="text-h6 font-weight-regular">
-                    Division - Position</span
+                    {{ jobDivision }} - {{ jobTitle }}</span
                   >
                 </v-col>
               </v-row>
@@ -49,42 +49,42 @@
           <span>First Name</span>
           <br />
           <span class="text-subtitle-1 font-weight-medium">
-            {{ profile.firstName }}</span
+            {{ firstName }}</span
           >
         </v-col>
         <v-col cols="2">
           <span>Last Name</span>
           <br />
           <span class="text-subtitle-1 font-weight-medium">
-            {{ profile.lastName }}
+            {{ lastName }}
           </span>
         </v-col>
         <v-col cols="2">
           <span>Date of Birth</span>
           <br />
           <span class="text-subtitle-1 font-weight-medium">
-            {{ profile.dateOfBirth.toLocaleDateString() }}
+            {{ dateOfBirth.toLocaleDateString() }}
           </span>
         </v-col>
         <v-col cols="2">
           <span>Phone Number</span>
           <br />
           <span class="text-subtitle-1 font-weight-medium">
-            {{ profile.phone }}
+            {{ phoneNumber }}
           </span>
         </v-col>
         <v-col cols="4">
           <span>Email</span>
           <br />
           <span class="text-subtitle-1 font-weight-medium">
-            {{ profile.email }}
+            {{ email }}
           </span>
         </v-col>
       </v-row>
 
       <v-row class="px-2">
         <v-col class="text-h6 font-weight-regular pb-2 pt-0" cols="12">
-          Employment Detials
+          Employment Details
         </v-col>
         <v-divider />
         <!-- NOT EDITING -->
@@ -92,21 +92,21 @@
           <span>Job Title </span>
           <br />
           <span class="text-subtitle-1 font-weight-medium">
-            {{ profile.jobTitle }}</span
+            {{ jobTitle }}</span
           >
         </v-col>
         <v-col cols="2">
           <span>Division </span>
           <br />
           <span class="text-subtitle-1 font-weight-medium">
-            {{ profile.division }}
+            {{ jobDivision }}
           </span>
         </v-col>
         <v-col cols="4">
           <span>Employee Status</span>
           <br />
-          <v-chip :color="chipColor(profile.status)">
-            {{ profile.status }}
+          <v-chip :color="chipColor(status)">
+            {{ status }}
           </v-chip>
         </v-col>
       </v-row>
@@ -117,17 +117,18 @@
 <script setup>
 import { mdiLogout } from "@mdi/js";
 import { ref } from "vue";
+import { useRoute } from "vue-router";
 
-const profile = ref({
-  firstName: "Daniel",
-  lastName: "Garyo",
-  dateOfBirth: new Date("2002-06-09"),
-  phone: "0812325209",
-  email: "ericgaryo@hotmail.com",
-  jobTitle: "Team Leader",
-  division: "Human Resource",
-  status: "Active",
-});
+const route = useRoute();
+const fullName = route.query.fullName;
+const firstName = route.query.firstName;
+const lastName = route.query.lastName;
+const jobDivision = route.query.jobDivision;
+const jobTitle = route.query.jobTitle;
+const status = route.query.status;
+const dateOfBirth = new Date(route.query.dateOfBirth);
+const phoneNumber = route.query.phoneNumber;
+const email = route.query.email;
 
 const chipColor = (x) => {
   if (x == "Active") {

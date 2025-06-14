@@ -5,6 +5,7 @@ import TimeOffView from "@/views/TimeOffView.vue";
 import Signup from "../views/Signup.vue";
 import Login from "../views/Login.vue";
 import Training from "../views/Training.vue";
+import SalaryDetailView from "@/views/SalaryDetailView.vue";
 
 const routes = [
   {
@@ -37,6 +38,11 @@ const routes = [
     path: "/training",
     name: "Training",
     component: Training,
+  },
+  {
+    path: "/salary-detail",
+    name: "salary-detail",
+    component: SalaryDetailView,
   },
 ];
 

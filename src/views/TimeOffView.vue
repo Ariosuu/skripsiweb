@@ -183,11 +183,17 @@
 
 <script setup>
 import { mdiClose, mdiEye, mdiLogout } from "@mdi/js";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { VDateInput } from "vuetify/labs/VDateInput";
 import { useRules } from "vuetify/labs/rules";
 import { db } from "@/firebase/config";
-import { collection, getDocs, updateDoc, addDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  updateDoc,
+  addDoc,
+  onSnapshot,
+} from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { signOut } from "firebase/auth";
 import { projectAuth } from "@/firebase/config";
@@ -226,13 +232,13 @@ const reqRef = collection(db, "leaves");
 const leaveUse = ref(0);
 const timeRequest = ref([]);
 
-getDocs(reqRef).then((snapshot) => {
+const unsubscribe = onSnapshot(reqRef, (snapshot) => {
   let docs = [];
   snapshot.docs.forEach((doc) => {
     docs.push({ ...doc.data(), id: doc.id });
   });
-  timeRequest.value = docs;
-  timeRequest.value = docs.map((item) => {
+
+  const formattedDocs = docs.map((item) => {
     const newItem = { ...item };
     if (newItem.from && newItem.from.toDate) {
       newItem.from = newItem.from.toDate().toLocaleDateString();
@@ -242,6 +248,8 @@ getDocs(reqRef).then((snapshot) => {
     }
     return newItem;
   });
+
+  timeRequest.value = formattedDocs;
 });
 
 const request = ref({

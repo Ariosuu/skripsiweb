@@ -6,6 +6,8 @@ import Signup from "../views/Signup.vue";
 import Login from "../views/Login.vue";
 import Training from "../views/Training.vue";
 import SalaryDetailView from "@/views/SalaryDetailView.vue";
+import Payslip from "../views/Payslip.vue";
+import PayslipDetail from "../views/PayslipDetail.vue";
 
 const routes = [
   {
@@ -43,6 +45,16 @@ const routes = [
     path: "/salary-detail",
     name: "salary-detail",
     component: SalaryDetailView,
+  },
+  {
+    path: "/payslip",
+    name: "Payslip",
+    component: Payslip,
+  },
+  {
+    path: "/payslipdetail",
+    name: "PayslipDetail",
+    component: PayslipDetail,
   },
 ];
 

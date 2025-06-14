@@ -3,7 +3,7 @@ import { db } from "../firebase/config";
 import { collection, onSnapshot } from "firebase/firestore";
 
 const getCollection = (c) => {
-  const documents = ref(null);
+  const documents = ref([]);
   let colRef = collection(db, c);
 
   const unsub = onSnapshot(colRef, (snapshot) => {

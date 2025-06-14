@@ -21,13 +21,11 @@
         flat
         @click:append-inner="
           () => {
-            applySearch();
             onClick();
           }
         "
         @keyup.enter="
           () => {
-            applySearch();
             onClick();
           }
         "
@@ -41,13 +39,15 @@
     <v-data-table
       :headers="headers"
       hide-default-footer
-      :items="items"
+      :items="filteredItems"
       class="px-4"
     >
-      <template v-slot:item.date="{ value }">
-        {{ value.toLocaleDateString() }}
+      <template v-slot:item.formattedDate="{ value }">
+        {{ value }}
       </template>
-      <template v-slot:item.duration="{ value }"> {{ value }} minute </template>
+      <template v-slot:item.duration="{ value }">
+        {{ value }} minutes
+      </template>
 
       <template v-slot:item.link="{ value }">
         <v-tooltip text="Go To Training">
@@ -71,55 +71,61 @@ import {
   mdiMagnify,
 } from "@mdi/js";
 
-import { ref } from "vue";
+import { ref, watch, computed } from "vue";
+import { collection, getDocs, Timestamp } from "firebase/firestore";
+import { db } from "@/firebase/config";
+import getCollection from "@/composables/getCollection";
+
+const { documents: items } = getCollection("training");
 
 const headers = ref([
   { title: "Training Name", key: "trainingName", align: "start", width: 200 },
-  { title: "Date", key: "date", align: "center" },
+  { title: "Date", key: "formattedDate", align: "center" },
   { title: "Duration", key: "duration", align: "center" },
   { title: "Trainer", key: "trainer", align: "start", width: 200 },
   { title: "Type", key: "type", align: "center" },
   { title: "", key: "link", align: "end", sortable: "false" },
 ]);
 
-const items = ref([
-  {
-    trainingName: "Building Safety",
-    date: new Date(),
-    duration: 90,
-    trainer: "John K.",
-    type: "Practical Training",
-    link: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
+watch(
+  items,
+  (newItems) => {
+    if (newItems) {
+      newItems.forEach((item) => {
+        if (item.date instanceof Timestamp) {
+          item.formattedDate = item.date.toDate().toLocaleDateString("en-US");
+        } else {
+          item.formattedDate = "N/A";
+        }
+      });
+    }
   },
-  {
-    trainingName: "Self Discipline",
-    date: new Date(),
-    duration: 70,
-    trainer: "John F.",
-    type: "Practical Training",
-    link: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
-  },
-]);
+  { immediate: true }
+);
 
 const loaded = ref(false);
 const loading = ref(false);
 const search = ref("");
-const filteredItems = ref([...items.value]);
+
+const filteredItems = computed(() => {
+  if (!search.value) {
+    return items.value;
+  }
+
+  const searchTerm = search.value.toLowerCase();
+  return items.value.filter((item) => {
+    return Object.values(item).some((value) => {
+      if (typeof value === "string") {
+        return value.toLowerCase().includes(searchTerm);
+      }
+      return false;
+    });
+  });
+});
 
 const redirect = (x) => {
   window.open(x);
 };
-
-function applySearch() {
-  const s = search.value.trim().toLowerCase();
-  if (!s) {
-    filteredItems.value = [...items.value];
-    return;
-  }
-  filteredItems.value = items.value.filter((item) =>
-    Object.values(item).some((val) => String(val).toLowerCase().includes(s))
-  );
-}
 
 function onClick() {
   loading.value = true;

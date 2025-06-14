@@ -32,6 +32,8 @@ const routes = [
     path: "/timeoff",
     name: "timeoff",
     component: TimeOffView,
+  },
+  {
     path: "/training",
     name: "Training",
     component: Training,

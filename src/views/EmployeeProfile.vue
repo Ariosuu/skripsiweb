@@ -92,22 +92,22 @@
           <span>Job Title </span>
           <br />
           <span class="text-subtitle-1 font-weight-medium">
-            {{ profile.firstName }}</span
+            {{ profile.jobTitle }}</span
           >
         </v-col>
         <v-col cols="2">
           <span>Division </span>
           <br />
           <span class="text-subtitle-1 font-weight-medium">
-            {{ profile.lastName }}
+            {{ profile.division }}
           </span>
         </v-col>
         <v-col cols="4">
           <span>Employee Status</span>
           <br />
-          <span class="text-subtitle-1 font-weight-medium">
-            {{ profile.dateOfBirth.toLocaleDateString() }}
-          </span>
+          <v-chip :color="chipColor(profile.status)">
+            {{ profile.status }}
+          </v-chip>
         </v-col>
       </v-row>
     </v-card-text>
@@ -124,5 +124,16 @@ const profile = ref({
   dateOfBirth: new Date("2002-06-09"),
   phone: "0812325209",
   email: "ericgaryo@hotmail.com",
+  jobTitle: "Team Leader",
+  division: "Human Resource",
+  status: "Active",
 });
+
+const chipColor = (x) => {
+  if (x == "Active") {
+    return "green";
+  } else if (x == "Inactive") {
+    return "red";
+  }
+};
 </script>

@@ -44,7 +44,16 @@
       <template v-slot:item.view="{ item }">
         <v-tooltip text="View Employee Profile">
           <template v-slot:activator="{ props }">
-            <v-btn icon flat v-bind="props" size="sm">
+            <v-btn
+              icon
+              flat
+              v-bind="props"
+              size="sm"
+              :to="{
+                name: 'Employee Profile',
+                query: {},
+              }"
+            >
               <v-icon :icon="mdiEye" color="#1985A1" />
             </v-btn>
           </template>

@@ -42,38 +42,21 @@
                     <span class="text-h6 font-weight-bold"> Earnings </span>
                     <br />
                     <span class="text-subtitle">
-                      {{
-                        totalEarning().toLocaleString("id-id", {
-                          style: "currency",
-                          currency: "IDR",
-                        })
-                      }}
+                      {{ january }}
                     </span>
                   </v-col>
                   <v-col cols="2" class="reimburse">
-                    <span class="text-h6 font-weight-bold">
-                      Reimbursement
-                    </span>
+                    <span class="text-h6 font-weight-bold"> Allowance </span>
                     <br />
                     <span class="text-subtitle">
-                      {{
-                        totalReimbursement().toLocaleString("id-id", {
-                          style: "currency",
-                          currency: "IDR",
-                        })
-                      }}
+                      {{ totalReimbursement() }}
                     </span>
                   </v-col>
                   <v-col cols="2" class="deduction">
                     <span class="text-h6 font-weight-bold"> Deduction </span>
                     <br />
                     <span class="text-subtitle">
-                      {{
-                        totalDeduction().toLocaleString("id-id", {
-                          style: "currency",
-                          currency: "IDR",
-                        })
-                      }}
+                      {{ totalDeduction() }}
                     </span>
                   </v-col>
                 </v-row>
@@ -99,28 +82,18 @@
           >
             <div>{{ item.name }}</div>
             <div>
-              {{
-                item.total.toLocaleString("id-id", {
-                  style: "currency",
-                  currency: "IDR",
-                })
-              }}
+              {{ item.total }}
             </div>
           </span>
 
-          <span class="text-h5 font-weight-bold">Reimbursement</span><br />
+          <span class="text-h5 font-weight-bold">Allowance</span><br />
           <span
             v-for="item in reimbursement"
             class="d-flex justify-space-between flex-row pa-2"
           >
             <div>{{ item.name }}</div>
             <div>
-              {{
-                item.total.toLocaleString("id-id", {
-                  style: "currency",
-                  currency: "IDR",
-                })
-              }}
+              {{ item.total }}
             </div>
           </span>
 
@@ -131,12 +104,7 @@
           >
             <div>{{ item.name }}</div>
             <div>
-              {{
-                item.total.toLocaleString("id-id", {
-                  style: "currency",
-                  currency: "IDR",
-                })
-              }}
+              {{ item.total }}
             </div>
           </span>
         </v-card>
@@ -148,12 +116,7 @@
         >
           <div>Total</div>
           <div>
-            {{
-              totalSalary.toLocaleString("id-id", {
-                style: "currency",
-                currency: "IDR",
-              })
-            }}
+            {{ totalSalary }}
           </div>
         </span>
       </v-col>
@@ -166,13 +129,10 @@ import { mdiFilter, mdiLogout } from "@mdi/js";
 import { ref } from "vue";
 import PieChart from "@/components/PieChart.vue";
 
-const currentMonth = ref("February");
-
 const earning = ref([
-  { name: "Basic", total: 10000000 },
-  { name: "Bonus", total: 2000000 },
-  { name: "Transportation", total: 1000000 },
-  { name: "Food", total: 1000000 },
+  { name: "Basic", total: 500000 },
+  { name: "Communication Allowance", total: 250000 },
+  { name: "Medical Allowance", total: 150000 },
 ]);
 
 const deduction = ref([

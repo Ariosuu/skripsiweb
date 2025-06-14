@@ -26,10 +26,14 @@
             name: 'PayslipDetail',
             query: {
               month: item.month,
-              grossPay: item.grossPay,
-              reimburse: item.reimburse,
-              deduction: item.deduction,
+              grossPay: item.basic,
+              reimburse: item.totAllow,
+              deduction: item.deductions,
               takeHome: item.takeHome,
+              comAllow: item.comAllow,
+              transAllow: item.transAllow,
+              bpjs: item.bpjs,
+              jht: item.jht,
             },
           }"
         >
@@ -38,9 +42,9 @@
       </template>
 
       <!-- Set value in table to Rp currency -->
-      <template v-slot:item.grossPay="{ value }">
+      <template v-slot:item.basic="{ value }">
         {{
-          value.toLocaleString("id-id", {
+          value.toLocaleString("id-ID", {
             style: "currency",
             currency: "IDR",
           })
@@ -48,17 +52,17 @@
       </template>
 
       <!-- Set value in table to Rp currency -->
-      <template v-slot:item.reimburse="{ value }">
+      <template v-slot:item.totAllow="{ value }">
         {{
-          value.toLocaleString("id-id", {
+          value.toLocaleString("id-ID", {
             style: "currency",
             currency: "IDR",
           })
         }}
       </template>
-      <template v-slot:item.deduction="{ value }">
+      <template v-slot:item.deductions="{ value }">
         {{
-          value.toLocaleString("id-id", {
+          value.toLocaleString("id-ID", {
             style: "currency",
             currency: "IDR",
           })
@@ -66,7 +70,7 @@
       </template>
       <template v-slot:item.takeHome="{ value }">
         {{
-          value.toLocaleString("id-id", {
+          value.toLocaleString("id-ID", {
             style: "currency",
             currency: "IDR",
           })
@@ -78,51 +82,70 @@
 
 <script setup>
 import { ref } from "vue";
-import { mdiLogout, mdiMenuDown, mdiDownload, mdiEye } from "@mdi/js";
+import { mdiMenuDown, mdiDownload, mdiEye } from "@mdi/js";
+import {
+  mdiChevronRight,
+  mdiLoginVariant,
+  mdiLogout,
+  mdiLogoutVariant,
+  mdiAccountCheck,
+  mdiAccountGroup,
+  mdiClockTimeFour,
+  mdiCurrencyUsd,
+  mdiFormatListBulleted,
+  mdiHome,
+} from "@mdi/js";
 
-const pay = ref([
-  {
-    month: "January",
-    grossPay: 3000000,
-    reimburse: 0,
-    deduction: 1000000,
-    takeHome: 2000000,
-  },
-  {
-    month: "February",
-    grossPay: 1000000,
-    reimburse: 0,
-    deduction: 500000,
-    takeHome: 500000,
-  },
-  {
-    month: "March",
-    grossPay: 2000000,
-    reimburse: 0,
-    deduction: 1000000,
-    takeHome: 1000000,
-  },
-  {
-    month: "April",
-    grossPay: 3000000,
-    reimburse: 0,
-    deduction: 1500000,
-    takeHome: 1500000,
-  },
-  {
-    month: "May",
-    grossPay: 2500000,
-    reimburse: 500000,
-    deduction: 1000000,
-    takeHome: 2000000,
-  },
-]);
+import { db } from "@/firebase/config";
+import { collection, getDocs, updateDoc, addDoc } from "firebase/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { signOut } from "firebase/auth";
+import { projectAuth } from "@/firebase/config";
+
+const auth = getAuth();
+const userRef = collection(db, "employees");
+const ID = ref();
+
+const pay = ref([]);
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    getDocs(userRef).then((snapshot) => {
+      let docs = [];
+      snapshot.docs.forEach((doc) => {
+        docs.push({ ...doc.data(), id: doc.id });
+      });
+      const currentUser = docs.find(
+        (doc) => doc.uid === user.uid || doc.email === user.email
+      );
+      if (currentUser) {
+        ID.value = currentUser.id;
+
+        getDocs(collection(db, "employees", ID.value, "salary")).then(
+          (snapshot) => {
+            let docs = [];
+            snapshot.docs.forEach((doc) => {
+              docs.push({ ...doc.data(), id: doc.id });
+            });
+            pay.value = docs;
+          }
+        );
+      } else {
+        console.error("User not found in the database.");
+      }
+    });
+  }
+});
 
 const headers = [
   { title: "Month", value: "month", align: "start", sortable: false },
-  { title: "Gross Pay", value: "grossPay", align: "center", sortable: true },
-  { title: "Reimburse", value: "reimburse", align: "center", sortable: true },
-  { title: "Deduction", value: "deduction", align: "center", sortable: true },
+  { title: "Salary", value: "basic", align: "center", sortable: true },
+  { title: "Allowance", value: "totAllow", align: "center", sortable: true },
+  {
+    title: "Deduction",
+    value: "deductions",
+    align: "center",
+    sortable: true,
+  },
   { title: "Take Home", value: "takeHome", align: "center", sortable: true },
   { title: "Detail", value: "payslip", align: "center", sortable: false },
 ];

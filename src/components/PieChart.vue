@@ -31,7 +31,7 @@ const chartOptions = ref({
   stroke: {
     width: 5,
   },
-  labels: ["Earning", "Reimbursement", "Deduction"],
+  labels: ["Earning", "Allowance", "Deduction"],
   colors: ["#69ff91", "#69bcff", "#ff6969"],
   tooltip: {
     y: {

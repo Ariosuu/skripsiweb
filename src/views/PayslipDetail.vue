@@ -1,8 +1,6 @@
 <template>
   <v-app-bar color="#C5C3C6" flat height="64">
-    <p color="#C5C3C6" class="text-h6 font-weight-bold pl-8">
-      Pay > Payslip > Details
-    </p>
+    <p color="#C5C3C6" class="text-h6 font-weight-bold pl-8">Payslip Details</p>
     <v-spacer></v-spacer>
     <v-avatar size="32"> </v-avatar>
     <v-btn :icon="mdiLogout"> </v-btn>
@@ -32,6 +30,14 @@
                     <br />
                     <span class="text-subtitle">
                       {{ formatIDR(takeHome) }}
+                    </span>
+                  </v-col>
+
+                  <v-col cols="2" class="allowance">
+                    <span class="text-h6 font-weight-bold"> Allowance </span>
+                    <br />
+                    <span class="text-subtitle">
+                      {{ formatIDR(totAllow) }}
                     </span>
                   </v-col>
 
@@ -130,8 +136,14 @@
               <v-card-text
                 class="d-flex justify-space-between align-center py-2"
               >
-                <span>Reimburse</span>
-                <span>{{ formatIDR(reimburse) }}</span>
+                <span>Transportation Allowance</span>
+                <span>{{ formatIDR(transAllow) }}</span>
+              </v-card-text>
+              <v-card-text
+                class="d-flex justify-space-between align-center py-2"
+              >
+                <span>Communication Allowance</span>
+                <span>{{ formatIDR(comAllow) }}</span>
               </v-card-text>
             </v-card>
           </v-col>
@@ -143,8 +155,14 @@
               <v-card-text
                 class="d-flex justify-space-between align-center py-2"
               >
-                <span>Emergency Loan </span>
-                <span>{{ formatIDR(deduction) }}</span>
+                <span>BPJS</span>
+                <span>{{ formatIDR(bpjs) }}</span>
+              </v-card-text>
+              <v-card-text
+                class="d-flex justify-space-between align-center py-2"
+              >
+                <span>JHT</span>
+                <span>{{ formatIDR(jht) }}</span>
               </v-card-text>
             </v-card>
           </v-col>
@@ -170,14 +188,14 @@
             <v-card height="50px" class="pl-2">
               <v-card-text class="d-flex justify-space-between align-center">
                 <span>Total Deduction:</span>
-                <span>{{ formatIDR(deduction) }}</span>
+                <span>{{ formatIDR(totaldeduct) }}</span>
               </v-card-text>
             </v-card>
           </v-col>
         </v-row>
       </v-col>
     </v-card>
-    <span class="text-h6 my-6">Net Pay : </span>
+    <span class="text-h6 my-6">Take Home Pay : </span>
     <span class="text-h5 mb-4 font-weight-bold">{{ formatIDR(takeHome) }}</span>
   </v-card>
 </template>
@@ -186,8 +204,14 @@
 import { mdiFilter, mdiLogout } from "@mdi/js";
 import { ref } from "vue";
 import { useRoute } from "vue-router";
-import PieChart from "@/components/Chart.vue";
+import PieChart from "@/components/PieChart.vue";
+import { db } from "@/firebase/config";
+import { collection, getDocs, updateDoc, addDoc } from "firebase/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { signOut } from "firebase/auth";
+import { projectAuth } from "@/firebase/config";
 
+const auth = getAuth();
 const route = useRoute();
 
 const month = route.query.month;
@@ -195,6 +219,12 @@ const grossPay = Number(route.query.grossPay);
 const reimburse = Number(route.query.reimburse);
 const deduction = Number(route.query.deduction);
 const takeHome = Number(route.query.takeHome);
+const bpjs = Number(route.query.bpjs);
+const jht = Number(route.query.jht);
+const comAllow = Number(route.query.comAllow);
+const transAllow = Number(route.query.transAllow);
+const totAllow = comAllow + transAllow;
+const totaldeduct = bpjs + jht;
 const totalpay = grossPay + reimburse;
 
 function formatIDR(value) {
@@ -206,7 +236,7 @@ function formatIDR(value) {
   return number.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
 }
 
-const salary = ref([takeHome, deduction]);
+const salary = ref([takeHome, totAllow, deduction]);
 </script>
 
 <style scoped>
@@ -219,7 +249,7 @@ const salary = ref([takeHome, deduction]);
   border-left-style: solid;
   border-color: #ff6969;
 }
-.reimburse {
+.allowance {
   border-left-style: solid;
   border-color: #69bcff;
 }

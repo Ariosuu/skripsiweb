@@ -4,6 +4,7 @@ import Attendance from "../views/Attendance.vue";
 import TimeOffView from "@/views/TimeOffView.vue";
 import Signup from "../views/Signup.vue";
 import Login from "../views/Login.vue";
+import Training from "../views/Training.vue";
 
 const routes = [
   {
@@ -31,6 +32,9 @@ const routes = [
     path: "/timeoff",
     name: "timeoff",
     component: TimeOffView,
+    path: "/training",
+    name: "Training",
+    component: Training,
   },
 ];
 

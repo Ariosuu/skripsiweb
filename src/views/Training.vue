@@ -49,10 +49,10 @@
       </template>
       <template v-slot:item.duration="{ value }"> {{ value }} minute </template>
 
-      <template v-slot:item.view="{ value }">
+      <template v-slot:item.link="{ value }">
         <v-tooltip text="Go To Training">
           <template v-slot:activator="{ props }">
-            <v-btn icon flat v-bind="props" size="sm">
+            <v-btn icon flat v-bind="props" size="sm" @click="redirect(value)">
               <v-icon :icon="mdiChevronRight" color="#1985A1" />
             </v-btn>
           </template>
@@ -79,7 +79,7 @@ const headers = ref([
   { title: "Duration", key: "duration", align: "center" },
   { title: "Trainer", key: "trainer", align: "start", width: 200 },
   { title: "Type", key: "type", align: "center" },
-  { title: "", key: "view", align: "end", sortable: "false" },
+  { title: "", key: "link", align: "end", sortable: "false" },
 ]);
 
 const items = ref([
@@ -89,6 +89,7 @@ const items = ref([
     duration: 90,
     trainer: "John K.",
     type: "Practical Training",
+    link: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
   },
   {
     trainingName: "Self Discipline",
@@ -96,6 +97,7 @@ const items = ref([
     duration: 70,
     trainer: "John F.",
     type: "Practical Training",
+    link: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
   },
 ]);
 
@@ -103,6 +105,10 @@ const loaded = ref(false);
 const loading = ref(false);
 const search = ref("");
 const filteredItems = ref([...items.value]);
+
+const redirect = (x) => {
+  window.open(x);
+};
 
 function applySearch() {
   const s = search.value.trim().toLowerCase();

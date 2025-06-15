@@ -57,6 +57,8 @@ const routes = [
     path: "/payslipdetail",
     name: "PayslipDetail",
     component: PayslipDetail,
+  },
+  {
     path: "/employees",
     name: "Employees",
     component: Employees,

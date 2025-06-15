@@ -82,7 +82,17 @@ import {
 } from "@mdi/js";
 
 import { db } from "@/firebase/config";
-import { collection, getDocs, updateDoc, addDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  updateDoc,
+  addDoc,
+  query,
+  where,
+  orderBy,
+  limit,
+  doc,
+} from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { signOut } from "firebase/auth";
 import { projectAuth } from "@/firebase/config";
@@ -157,16 +167,40 @@ const clockIn = () => {
     clockedOut: "-",
     status,
   });
+  recordData();
 };
 
-const clockOut = () => {
+const clockOut = async () => {
   if (newAttendance.value.length > 0) {
     const lastRecord = newAttendance.value[newAttendance.value.length - 1];
     if (lastRecord.clockedOut === "-") {
       lastRecord.clockedOut = formatTime(new Date());
-      recordData();
     }
   }
+  try {
+    const attendanceRef = collection(db, "employees", ID.value, "attendance");
+    const q = query(attendanceRef, orderBy("clockedIn", "desc"), limit(1));
+
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      const lastRecordDoc = querySnapshot.docs[0];
+      const lastRecord = lastRecordDoc.data();
+      const lastRecordId = lastRecordDoc.id;
+      const docRef = doc(db, "employees", ID.value, "attendance", lastRecordId);
+
+      await updateDoc(docRef, {
+        clockedOut: formatTime(new Date()),
+      });
+
+      console.log("Clocked out successfully!");
+    } else {
+      console.log("No clock-in record found.");
+    }
+  } catch (error) {
+    console.error("Error clocking out:", error);
+  }
+  window.location.reload();
 };
 
 const recordData = () => {

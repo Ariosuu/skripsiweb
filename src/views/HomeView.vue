@@ -2,8 +2,6 @@
   <v-app-bar color="#C5C3C6" flat height="64">
     <p color="#C5C3C6" class="text-h6 font-weight-bold pl-8">Home</p>
     <v-spacer></v-spacer>
-    <v-btn to="/signup">Sign Up</v-btn>
-    <v-btn to="/login">Log In</v-btn>
     <v-avatar color="surface-variant"></v-avatar>
     <v-btn :icon="mdiLogout" @click="handleLogout" to="/login"> </v-btn>
   </v-app-bar>
@@ -24,6 +22,20 @@
           text
           class="py-1 mt-2"
           style="color: black; text-transform: none"
+          :to="{
+            name: 'Employee Profile',
+            query: {
+              fullName: userName,
+              firstName: firstName,
+              lastName: lastName,
+              jobDivision: jobDivision,
+              jobTitle: jobTitle,
+              status: empStatus,
+              email: email,
+              phoneNumber: phoneNumber, // Pass phoneNumber as a string
+              dateOfBirth: formattedBirth, // Pass formatted dateOfBirth
+            },
+          }"
         >
           Staff Data
         </v-btn>
@@ -59,6 +71,7 @@
                     size="x-large"
                     block
                     base-color="#46494C"
+                    @click="clockIn"
                   >
                     <v-icon
                       color="#1985A1"
@@ -73,7 +86,7 @@
                 </v-col>
                 <v-divider vertical />
                 <v-col cols="6">
-                  <v-btn variant="plain" size="x-large" block>
+                  <v-btn variant="plain" size="x-large" block @click="clockOut">
                     <v-icon
                       color="#1985A1"
                       slot="prepend-icon"
@@ -90,7 +103,9 @@
               <v-row>
                 <v-col cols="12" class="text-center">
                   Clocked in at: <br />
-                  <strong class="text-h4"> 08:00 AM</strong>
+                  <strong class="text-h4">
+                    {{ displayClockInMessage }}
+                  </strong>
                 </v-col>
               </v-row>
             </v-card>
@@ -100,10 +115,10 @@
           <v-col cols="12">
             <v-card class="fill-height">
               <v-card-title class="text-center">
-                Leave Remaining: XX Days
+                Leave Remaining: {{ leaveRemaining }} days
               </v-card-title>
               <v-card-text>
-                <v-btn size="large" color="#207a9a" block flat
+                <v-btn to="/timeoff" size="large" color="#207a9a" block flat
                   >Request Leave</v-btn
                 >
               </v-card-text>
@@ -148,10 +163,15 @@
               rounded
             >
               <div>
-                Public Speaking 101<br />
-                <small>TGL/BLN/THN - ONLINE/OFFLINE</small>
+                {{ latestTrainingName }}<br />
+                <small>{{ formattedDate }} - {{ latestTrainingType }}</small>
               </div>
-              <v-btn :icon="mdiChevronRight" size="small" color="#207a9a" />
+              <v-btn
+                :icon="mdiChevronRight"
+                size="small"
+                color="#207a9a"
+                @click="redirect(latestTrainingLink)"
+              />
             </v-sheet>
           </v-card-text>
         </v-card>
@@ -167,43 +187,235 @@ import {
   mdiLogout,
   mdiLogoutVariant,
 } from "@mdi/js";
-import { ref } from "vue";
+import { ref, onMounted, computed } from "vue";
+import { useRouter } from "vue-router";
 import { projectAuth } from "@/firebase/config";
 import getUser from "@/composables/getUser";
 import getCollection from "@/composables/getCollection";
 import { db } from "@/firebase/config";
-import { collection, getDocs, updateDoc, addDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  updateDoc,
+  addDoc,
+  query,
+  where,
+  orderBy,
+  limit,
+  doc,
+  Timestamp,
+} from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { signOut } from "firebase/auth";
+import { useRoute } from "vue-router";
 
-const userName = ref();
-const userPos = ref();
+const route = useRoute();
 const auth = getAuth();
 const userRef = collection(db, "employees");
 const ID = ref();
+const leaveRemaining = ref();
+const newAttendance = ref([]);
+const attendanceRecords = ref([]);
 const { user } = getUser();
+const lastClockInTime = ref(null);
+const reset = ref(false);
+const items = ref([]);
 
-onAuthStateChanged(auth, (user) => {
+// get user data
+const userName = ref();
+const firstName = ref();
+const lastName = ref();
+const jobTitle = ref();
+const jobDivision = ref();
+const empStatus = ref();
+const email = ref();
+const phoneNumber = ref();
+const dateOfBirth = ref();
+const formattedBirth = computed(() => {
+  if (dateOfBirth.value instanceof Timestamp) {
+    return dateOfBirth.value.toDate().toLocaleDateString("en-US");
+  }
+  return "N/A";
+});
+
+onAuthStateChanged(auth, async (user) => {
   if (user) {
-    getDocs(userRef).then((snapshot) => {
-      let docs = [];
-      snapshot.docs.forEach((doc) => {
-        docs.push({ ...doc.data(), id: doc.id });
-      });
+    try {
+      const querySnapshot = await getDocs(userRef);
+      const docs = querySnapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      }));
       const currentUser = docs.find(
         (doc) => doc.uid === user.uid || doc.email === user.email
       );
       if (currentUser) {
         userName.value = currentUser.firstName + " " + currentUser.lastName;
-        userPos.value = currentUser.jobTitle;
+        firstName.value = currentUser.firstName;
+        lastName.value = currentUser.lastName;
+        jobTitle.value = currentUser.jobTitle;
+        jobDivision.value = currentUser.jobDivision;
+        empStatus.value = currentUser.empStatus;
+        email.value = currentUser.email;
+        phoneNumber.value = currentUser.phoneNumber;
+        dateOfBirth.value = currentUser.dateofBirth;
         ID.value = currentUser.id;
+        leaveRemaining.value = currentUser.timeOff;
+        await fetchLastClockIn();
       } else {
         console.error("User not found in the database.");
       }
-    });
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
   }
 });
+
 const handleLogout = () => {
   signOut(projectAuth);
 };
+
+// CLOCK IN LOGIC
+
+const formatTime = (date) => {
+  return date.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+};
+
+const getResetValue = () => {
+  const storedReset = localStorage.getItem("reset");
+  return storedReset === "true";
+};
+
+const setResetValue = (value) => {
+  localStorage.setItem("reset", value.toString());
+};
+
+reset.value = getResetValue();
+
+const displayClockInMessage = computed(() => {
+  if (reset.value) {
+    return "--";
+  } else {
+    return lastClockInTime.value || "--";
+  }
+});
+
+const formatDate = () => {
+  const date = new Date();
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
+const clockIn = async () => {
+  const now = new Date();
+  const time = formatTime(now);
+  const hour = now.getHours();
+  const minutes = now.getMinutes();
+
+  const timeDecimal = hour + minutes / 60;
+
+  const status = timeDecimal > 9 ? "Late" : "On Time";
+
+  const newRecord = {
+    date: formatDate(),
+    clockedIn: time,
+    clockedOut: "-",
+    status,
+  };
+
+  try {
+    await addDoc(
+      collection(db, "employees", ID.value, "attendance"),
+      newRecord
+    );
+    await fetchLastClockIn();
+    reset.value = false;
+    setResetValue(reset.value);
+  } catch (error) {
+    console.error("Error clocking in:", error);
+  }
+};
+
+const fetchLastClockIn = async () => {
+  if (!ID.value) return;
+  const attendanceRef = collection(db, "employees", ID.value, "attendance");
+  const q = query(attendanceRef, orderBy("clockedIn", "desc"), limit(1));
+  const snapshot = await getDocs(q);
+  if (!snapshot.empty) {
+    const doc = snapshot.docs[0];
+    lastClockInTime.value = doc.data().clockedIn;
+  }
+};
+
+const clockOut = async () => {
+  try {
+    const attendanceRef = collection(db, "employees", ID.value, "attendance");
+    const q = query(attendanceRef, orderBy("clockedIn", "desc"), limit(1));
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      const lastRecordDoc = querySnapshot.docs[0];
+      const lastRecord = lastRecordDoc.data();
+      const lastRecordId = lastRecordDoc.id;
+      const docRef = doc(db, "employees", ID.value, "attendance", lastRecordId);
+
+      await updateDoc(docRef, {
+        clockedOut: formatTime(new Date()),
+      });
+      console.log("Clocked out successfully!");
+      reset.value = true;
+      setResetValue(reset.value);
+    }
+  } catch (error) {
+    console.error("Error clocking out:", error);
+  }
+};
+
+// TRAINING CODE
+
+const { documents: training } = getCollection("training");
+
+const latestTrainingName = computed(() => {
+  if (training.value && training.value.length > 0) {
+    return training.value[0].trainingName || "";
+  }
+  return "";
+});
+
+const latestTrainingDate = computed(() => {
+  if (training.value && training.value.length > 0) {
+    return training.value[0].date || "";
+  }
+  return "";
+});
+
+const latestTrainingType = computed(() => {
+  if (training.value && training.value.length > 0) {
+    return training.value[0].type || "";
+  }
+  return "";
+});
+
+const latestTrainingLink = computed(() => {
+  if (training.value && training.value.length > 0) {
+    return training.value[0].link || "";
+  }
+  return "";
+});
+
+const redirect = (x) => {
+  window.open(x);
+};
+
+const formattedDate = computed(() => {
+  if (latestTrainingDate.value instanceof Timestamp) {
+    return latestTrainingDate.value.toDate().toLocaleDateString("en-US");
+  }
+  return "N/A";
+});
 </script>

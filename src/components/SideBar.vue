@@ -41,6 +41,7 @@ import {
   mdiCurrencyUsd,
   mdiFormatListBulleted,
   mdiHome,
+  mdiPlaylistEdit,
 } from "@mdi/js";
 
 const items = ref([
@@ -57,6 +58,11 @@ const items = ref([
   { icon: mdiAccountCheck, title: "Attendance", route: "/attendance" },
   { icon: mdiClockTimeFour, title: "Time Off", route: "/timeoff" },
   { icon: mdiFormatListBulleted, title: "Training", route: "/training" },
+  {
+    icon: mdiPlaylistEdit,
+    title: "Training List",
+    route: "/training-list",
+  },
   { icon: mdiAccountGroup, title: "Employees", route: "/employees" },
 ]);
 

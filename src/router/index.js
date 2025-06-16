@@ -10,6 +10,7 @@ import Payslip from "../views/Payslip.vue";
 import PayslipDetail from "../views/PayslipDetail.vue";
 import Employees from "../views/Employees.vue";
 import EmployeeProfile from "@/views/EmployeeProfile.vue";
+import ReimbursementView from "@/views/ReimbursementView.vue";
 
 const routes = [
   {
@@ -68,6 +69,11 @@ const routes = [
     path: "/employee-profile",
     name: "Employee Profile",
     component: EmployeeProfile,
+  },
+  {
+    path: "/reimbursement",
+    name: "reimbursement",
+    component: ReimbursementView,
   },
 ];
 

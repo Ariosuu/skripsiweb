@@ -104,10 +104,7 @@
 
   <v-dialog v-model="reimburseDialog" width="auto" persistent>
     <v-form @submit.prevent="test" v-model="isValid">
-      <v-card
-        width="1200"
-        :title="isNew ? 'Add New Claim' : reimburseForm.claimId"
-      >
+      <v-card width="1200" :title="isNew ? 'Add New Claim' : 'Claim Detail'">
         <template v-slot:append>
           <v-btn :icon="mdiClose" flat size="sm" @click="closeDialog"></v-btn>
         </template>
@@ -180,6 +177,7 @@
               </v-row>
             </v-col>
 
+            <!-- DETAIL TUNJUKIN GAMBAR -->
             <v-col cols="4" v-if="!isNew">
               <v-img :src="reimburseForm.receiptImage"></v-img>
             </v-col>
@@ -235,8 +233,7 @@ const total = ref(0);
 const rules = useRules();
 
 const headers = ref([
-  { title: "Claim Number", key: "claimId", align: "start", width: 175 },
-  { title: "Claim Date", key: "date", align: "center" },
+  { title: "Claim Date", key: "date", align: "start" },
   { title: "Total Bill", key: "bill", align: "start" },
   { title: "Approved Amount", key: "approved", align: "start" },
   { title: "Status", key: "status", align: "center", sortable: false },
@@ -261,20 +258,19 @@ const chipColor = (x) => {
 const reimbursement = ref([
   {
     name: "Daniel Garyo",
-    claimId: "CL001",
     date: new Date(),
     bill: 2000000,
     approved: 1000000,
     status: "Approved",
     notes: "Eric stole my food",
     receiptFile: null,
-    receiptImage: null,
+    receiptImage:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Osama_bin_Laden_portrait_%283x4_cropped_b%29.jpg/640px-Osama_bin_Laden_portrait_%283x4_cropped_b%29.jpg",
   },
 ]);
 
 const reimburseForm = ref({
   name: "Daniel Garyo",
-  claimId: "",
   date: new Date(),
   bill: 0,
   approved: 0,
@@ -326,10 +322,11 @@ const closeDialog = () => {
 const test = () => {
   if (isValid.value) {
     reimburseForm.value.bill = Number(reimburseForm.value.bill);
+    console.log(reimburseForm.value);
+
     reimburseForm.value.receiptImage = createImage(
       reimburseForm.value.receiptFile
     );
-    console.log(reimburseForm.value);
     reimbursement.value.unshift(reimburseForm.value);
     closeDialog();
   }

@@ -7,37 +7,9 @@
   </v-app-bar>
 
   <v-row>
-    <v-col cols="4">
-      <v-select
-        class="ma-4"
-        :items="[
-          'January',
-          'February',
-          'March',
-          'April',
-          'May',
-          'June',
-          'July',
-          'August',
-          'September',
-          'October',
-          'November',
-          'December',
-        ]"
-        flat
-        variant="solo"
-        density="compact"
-        hide-details
-        v-model="currentMonth"
-        prepend-inner-icon=""
-      >
-        <template v-slot:prepend-inner>
-          <v-icon :icon="mdiFilter" size="sm" color="#207a9a" />
-        </template>
-      </v-select>
-    </v-col>
+    <v-col cols="4"> </v-col>
     <v-spacer />
-    <v-col class="d-flex align-center justify-end pr-7">
+    <v-col class="d-flex align-center justify-end pr-7 ma-4">
       <v-btn flat color="#1985A1" @click="newReimburse"
         >Add New Reimburse</v-btn
       ></v-col
@@ -57,14 +29,14 @@
 
     <v-data-table
       :headers="headers"
-      :items="reimbursement"
+      :items="newReim"
       class="px-4"
       height="600"
       hide-default-footer
       items-per-page="-1"
     >
       <template v-slot:item.date="{ value }">
-        {{ value.toLocaleDateString() }}
+        {{ value }}
       </template>
 
       <template v-slot:item.bill="{ value }">
@@ -90,7 +62,7 @@
           icon
           flat
           size="sm"
-          @click="viewReimburse(reimbursement.indexOf(item))"
+          @click="viewReimburse(newReim.indexOf(item))"
         >
           <v-icon :icon="mdiEye" color="#1985A1" />
         </v-btn>
@@ -104,10 +76,7 @@
 
   <v-dialog v-model="reimburseDialog" width="auto" persistent>
     <v-form @submit.prevent="test" v-model="isValid">
-      <v-card
-        width="1200"
-        :title="isNew ? 'Add New Claim' : reimburseForm.claimId"
-      >
+      <v-card width="1200">
         <template v-slot:append>
           <v-btn :icon="mdiClose" flat size="sm" @click="closeDialog"></v-btn>
         </template>
@@ -181,7 +150,14 @@
             </v-col>
 
             <v-col cols="4" v-if="!isNew">
-              <v-img :src="reimburseForm.receiptImage"></v-img>
+              <v-img
+                v-if="reimburseForm.receiptImage"
+                :src="reimburseForm.receiptImage"
+                alt="Receipt"
+                max-width="350"
+                max-height="350"
+              ></v-img>
+              <div v-else>No image uploaded.</div>
             </v-col>
 
             <v-col cols="3" v-if="!isNew">
@@ -221,21 +197,104 @@ import {
   mdiCalendar,
   mdiUpload,
 } from "@mdi/js";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed, watch } from "vue";
 import { VDateInput } from "vuetify/labs/VDateInput";
 import { VFileUpload } from "vuetify/labs/VFileUpload";
 import { useRules } from "vuetify/labs/rules";
+import { db } from "@/firebase/config";
+import {
+  collection,
+  getDocs,
+  updateDoc,
+  addDoc,
+  onSnapshot,
+} from "firebase/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { signOut } from "firebase/auth";
+import { projectAuth } from "@/firebase/config";
 
-const currentMonth = ref("February");
+const auth = getAuth();
 const reimburseDialog = ref(false);
 const isValid = ref(false);
 const isNew = ref(false);
-const total = ref(0);
-
+const total = computed(() =>
+  newReim.value.reduce((sum, item) => sum + (Number(item.bill) || 0), 0)
+);
 const rules = useRules();
+const reqName = ref();
+const reqPos = ref();
+const allReim = ref([]); // Store all reimbursements
+const newReim = ref([]); // Only for current user
+const docRef = collection(db, "reimburse");
 
+// Listen to all reimbursements and store them in allReim
+const unsubscribe = onSnapshot(docRef, (snapshot) => {
+  let docs = [];
+  snapshot.docs.forEach((doc) => {
+    docs.push({ ...doc.data(), id: doc.id });
+  });
+
+  const formattedDocs = docs.map((item) => {
+    const newItem = { ...item };
+    if (newItem.date && newItem.date.toDate) {
+      newItem.date = newItem.date.toDate().toLocaleDateString();
+    }
+    return newItem;
+  });
+  allReim.value = formattedDocs;
+});
+
+// Watch reqName and filter reimbursements for the current user
+watch(
+  () => reqName.value,
+  (name) => {
+    if (name) {
+      newReim.value = allReim.value.filter((item) => item.name === name);
+    }
+  },
+  { immediate: true }
+);
+
+// Also watch allReim in case data arrives after reqName
+watch(
+  allReim,
+  (docs) => {
+    if (reqName.value) {
+      newReim.value = docs.filter((item) => item.name === reqName.value);
+    }
+  },
+  { immediate: true }
+);
+
+const reimburseForm = ref({
+  name: reqName,
+  date: new Date(),
+  bill: 0,
+  approved: 0,
+  status: "Pending",
+  notes: "",
+  receiptFile: null,
+  receiptImage: null,
+});
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    getDocs(collection(db, "employees")).then((snapshot) => {
+      let docs = [];
+      snapshot.docs.forEach((doc) => {
+        docs.push({ ...doc.data(), id: doc.id });
+      });
+      const currentUser = docs.find(
+        (doc) => doc.uid === user.uid || doc.email === user.email
+      );
+      if (currentUser) {
+        reqName.value = currentUser.firstName + " " + currentUser.lastName;
+        reqPos.value = currentUser.jobTitle;
+      }
+    });
+  }
+});
 const headers = ref([
-  { title: "Claim Number", key: "claimId", align: "start", width: 175 },
   { title: "Claim Date", key: "date", align: "center" },
   { title: "Total Bill", key: "bill", align: "start" },
   { title: "Approved Amount", key: "approved", align: "start" },
@@ -258,31 +317,14 @@ const chipColor = (x) => {
   }
 };
 
-const reimbursement = ref([
-  {
-    name: "Daniel Garyo",
-    claimId: "CL001",
-    date: new Date(),
-    bill: 2000000,
-    approved: 1000000,
-    status: "Approved",
-    notes: "Eric stole my food",
-    receiptFile: null,
-    receiptImage: null,
-  },
-]);
-
-const reimburseForm = ref({
-  name: "Daniel Garyo",
-  claimId: "",
-  date: new Date(),
-  bill: 0,
-  approved: 0,
-  status: "Pending",
-  notes: "",
-  receiptFile: null,
-  receiptImage: null,
-});
+const createBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target.result);
+    reader.onerror = (e) => reject(e);
+    reader.readAsDataURL(file);
+  });
+};
 
 const createImage = (file) => {
   const url = URL.createObjectURL(file);
@@ -296,24 +338,14 @@ const newReimburse = () => {
 
 const viewReimburse = (x) => {
   isNew.value = false;
-  reimburseForm.value = reimbursement.value[x];
+  reimburseForm.value = { ...newReim.value[x] };
+  reimburseForm.value.receiptImage = newReim.value[x].detail;
   reimburseDialog.value = true;
-};
-
-const sumApproved = (x) => {
-  total.value = 0;
-  for (let i = 0; i < reimbursement.value.length; i++) {
-    if (reimbursement.value[i].status == "Approved") {
-      total.value += reimbursement.value[i].approved;
-    }
-  }
-  console.log(total.value);
 };
 
 const closeDialog = () => {
   reimburseForm.value = {
-    name: "Daniel Garyo",
-    claimId: "",
+    name: reqName,
     date: new Date(),
     bill: 0,
     approved: 0,
@@ -323,19 +355,23 @@ const closeDialog = () => {
   reimburseDialog.value = false;
 };
 
-const test = () => {
+const test = async () => {
   if (isValid.value) {
     reimburseForm.value.bill = Number(reimburseForm.value.bill);
-    reimburseForm.value.receiptImage = createImage(
-      reimburseForm.value.receiptFile
-    );
-    console.log(reimburseForm.value);
-    reimbursement.value.unshift(reimburseForm.value);
-    closeDialog();
+    let imageData = null;
+    if (reimburseForm.value.receiptFile) {
+      imageData = await createBase64(reimburseForm.value.receiptFile);
+    }
+    await addDoc(collection(db, "reimburse"), {
+      date: reimburseForm.value.date,
+      name: reqName.value,
+      bill: reimburseForm.value.bill,
+      approved: 0,
+      notes: reimburseForm.value.notes,
+      status: "Pending",
+      detail: imageData,
+    });
   }
+  closeDialog();
 };
-
-onMounted(() => {
-  sumApproved();
-});
 </script>

@@ -14,7 +14,7 @@
           :loading="loading"
           :append-inner-icon="mdiMagnify"
           density="compact"
-          label="Search Employees"
+          label="Search Training"
           variant="solo"
           hide-details
           single-line
@@ -35,15 +35,15 @@
 
   <v-card max-height="750" class="ma-4 mt-0" color="#FFFFFF">
     <v-data-table
-      :items="training"
+      :items="filteredItems"
       :headers="headers"
       hide-default-footer
       class="px-4"
       height="800"
       items-per-page="-1"
     >
-      <template v-slot:item.date="{ value }">
-        {{ value.toLocaleDateString() }}
+      <template v-slot:item.formattedDate="{ value }">
+        {{ value }}
       </template>
 
       <template v-slot:item.duration="{ value }">
@@ -58,7 +58,7 @@
               flat
               v-bind="props"
               size="sm"
-              @click="openEdit(training.indexOf(item))"
+              @click="openEdit(items.indexOf(item))"
             >
               <v-icon :icon="mdiPencil" color="#1985A1" />
             </v-btn>
@@ -184,15 +184,60 @@ import {
   mdiPencil,
 } from "@mdi/js";
 import { VDateInput } from "vuetify/labs/VDateInput";
-import { ref, reactive } from "vue";
+import { ref, reactive, watch, computed } from "vue";
 import { useRules } from "vuetify/labs/rules";
+import {
+  collection,
+  getDocs,
+  Timestamp,
+  addDoc,
+  updateDoc,
+  doc,
+} from "firebase/firestore";
+import { db } from "@/firebase/config";
+import getCollection from "@/composables/getCollection";
+
+const { documents: items } = getCollection("training");
 
 const rules = useRules();
-
 const trainingDialog = ref(false);
 const isNew = ref(false);
 const isEdit = ref(false);
 const isValid = ref(false);
+const search = ref("");
+
+// SEARCH FUNCTIONALITY
+const filteredItems = computed(() => {
+  if (!search.value) {
+    return items.value;
+  }
+
+  const searchTerm = search.value.toLowerCase();
+  return items.value.filter((item) => {
+    return Object.values(item).some((value) => {
+      if (typeof value === "string") {
+        return value.toLowerCase().includes(searchTerm);
+      }
+      return false;
+    });
+  });
+});
+
+watch(
+  items,
+  (newItems) => {
+    if (newItems) {
+      newItems.forEach((item) => {
+        if (item.date instanceof Timestamp) {
+          item.formattedDate = item.date.toDate().toLocaleDateString("en-US");
+        } else {
+          item.formattedDate = "N/A";
+        }
+      });
+    }
+  },
+  { immediate: true }
+);
 
 const noZero = (x) => {
   if (x == 0) {
@@ -206,18 +251,6 @@ const url = (x) => {
   return regex.test(x) || "Must be a valid URL";
 };
 
-const training = ref([
-  {
-    name: "Building Safety",
-    date: new Date(),
-    duration: 90,
-    trainer: "John K.",
-    type: "Online",
-    link: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
-    division: "Human Resource",
-  },
-]);
-
 const trainingForm = reactive({
   name: "",
   date: new Date(),
@@ -229,8 +262,13 @@ const trainingForm = reactive({
 });
 
 const headers = [
-  { title: "Training Name", value: "name", align: "start", sortable: true },
-  { title: "Date", value: "date", align: "center", sortable: true },
+  {
+    title: "Training Name",
+    value: "trainingName",
+    align: "start",
+    sortable: true,
+  },
+  { title: "Date", value: "formattedDate", align: "center", sortable: true },
   { title: "Duration", value: "duration", align: "center", sortable: true },
   { title: "Trainer", value: "trainer", align: "center", sortable: true },
   { title: "Type", value: "type", align: "center", sortable: true },
@@ -251,16 +289,20 @@ const openNew = () => {
 };
 
 const openEdit = (x) => {
-  isEdit.value = false;
-  trainingForm.name = training.value[x].name;
-  trainingForm.date = training.value[x].date;
-  trainingForm.duration = training.value[x].duration;
-  trainingForm.trainer = training.value[x].trainer;
-  trainingForm.type = training.value[x].type;
-  trainingForm.link = training.value[x].link;
-  trainingForm.division = training.value[x].division;
+  isEdit.value = true;
+  isNew.value = false;
+  trainingForm.name = items.value[x].trainingName;
+  trainingForm.date = items.value[x].date;
+  trainingForm.duration = items.value[x].duration;
+  trainingForm.trainer = items.value[x].trainer;
+  trainingForm.type = items.value[x].type;
+  trainingForm.link = items.value[x].link;
+  trainingForm.division = items.value[x].division;
+  trainingForm._index = x; // store index for update
   trainingDialog.value = true;
 };
+
+// Update submit to update the item in items.value
 
 const closeDialog = () => {
   isNew.value = false;
@@ -275,13 +317,34 @@ const closeDialog = () => {
   trainingDialog.value = false;
 };
 
-const submit = () => {
+const submit = async () => {
   if (isValid.value) {
-    if(isNew.value){
-      // masukin logic buat insert data baru ke tabel sini
+    if (isNew.value) {
+      await addDoc(collection(db, "training"), {
+        trainingName: trainingForm.name,
+        date: trainingForm.date,
+        duration: trainingForm.duration,
+        trainer: trainingForm.trainer,
+        type: trainingForm.type,
+        link: trainingForm.link,
+        division: trainingForm.division,
+      });
     }
-    if(isEdit.value) {
-      // masukin logic buat update data yang di edit di sini
+    if (isEdit.value) {
+      const idx = trainingForm._index;
+      const docId = items.value[idx]?.id;
+      if (docId) {
+        const docRef = doc(db, "training", docId);
+        await updateDoc(docRef, {
+          trainingName: trainingForm.name,
+          date: trainingForm.date,
+          duration: trainingForm.duration,
+          trainer: trainingForm.trainer,
+          type: trainingForm.type,
+          link: trainingForm.link,
+          division: trainingForm.division,
+        });
+      }
     }
     closeDialog();
   }

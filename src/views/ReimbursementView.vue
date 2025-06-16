@@ -223,11 +223,10 @@ const total = computed(() =>
 const rules = useRules();
 const reqName = ref();
 const reqPos = ref();
-const allReim = ref([]); // Store all reimbursements
-const newReim = ref([]); // Only for current user
+const allReim = ref([]);
+const newReim = ref([]);
 const docRef = collection(db, "reimburse");
 
-// Listen to all reimbursements and store them in allReim
 const unsubscribe = onSnapshot(docRef, (snapshot) => {
   let docs = [];
   snapshot.docs.forEach((doc) => {

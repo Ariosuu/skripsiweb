@@ -75,6 +75,8 @@ const routes = [
     path: "/reimbursement",
     name: "reimbursement",
     component: ReimbursementView,
+  },
+  {
     path: "/training-list",
     name: "TrainingList",
     component: TrainingList,

@@ -19,16 +19,6 @@
         hide-details
         single-line
         flat
-        @click:append-inner="
-          () => {
-            onClick();
-          }
-        "
-        @keyup.enter="
-          () => {
-            onClick();
-          }
-        "
         style="max-width: 340px; min-width: 200px; margin-right: 16px"
       >
       </v-text-field>
@@ -77,6 +67,7 @@ import { db } from "@/firebase/config";
 import getCollection from "@/composables/getCollection";
 
 const { documents: items } = getCollection("training");
+const search = ref("");
 
 const headers = ref([
   { title: "Training Name", key: "trainingName", align: "start", width: 200 },
@@ -103,10 +94,6 @@ watch(
   { immediate: true }
 );
 
-const loaded = ref(false);
-const loading = ref(false);
-const search = ref("");
-
 const filteredItems = computed(() => {
   if (!search.value) {
     return items.value;
@@ -126,12 +113,4 @@ const filteredItems = computed(() => {
 const redirect = (x) => {
   window.open(x);
 };
-
-function onClick() {
-  loading.value = true;
-  setTimeout(() => {
-    loading.value = false;
-    loaded.value = true;
-  }, 1000);
-}
 </script>

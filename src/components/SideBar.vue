@@ -52,6 +52,7 @@ const items = ref([
       { title: "Salary Details", route: "/salary-detail" },
       { title: "PaySlip", route: "/payslip" },
       { title: "Reimbursement", route: "/reimbursement" },
+      { title: "Approve Reimbursement", route: "/approve-reimbursement" },
     ],
   },
   { icon: mdiAccountCheck, title: "Attendance", route: "/attendance" },

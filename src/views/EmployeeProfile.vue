@@ -296,7 +296,7 @@ const closeDialog = () => {
   profileForm.email = "";
   profileForm.jobTitle = "";
   profileForm.jobDivision = "";
-  profileForm.status = "Active";
+  profileForm.status = "";
 };
 
 const confirmEdit = async () => {
@@ -309,8 +309,10 @@ const confirmEdit = async () => {
       email: profileForm.email,
       jobTitle: profileForm.jobTitle,
       jobDivision: profileForm.jobDivision,
+      empStatus: profileForm.status,
     });
     closeDialog();
+    window.location.href = "/employees";
   }
 };
 </script>

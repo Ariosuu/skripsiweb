@@ -60,6 +60,7 @@
               :to="{
                 name: 'Employee Profile',
                 query: {
+                  id: item.id,
                   fullName: item.fullName,
                   firstName: item.firstName,
                   lastName: item.lastName,
@@ -209,12 +210,9 @@ import { useRules } from "vuetify/labs/rules";
 const loaded = ref(false);
 const loading = ref(false);
 const search = ref("");
-
 const employeeDialog = ref(false);
-
 const isValid = ref(false);
 const rules = useRules();
-
 const auth = getAuth();
 const { documents: items } = getCollection("employees");
 

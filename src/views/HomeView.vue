@@ -32,8 +32,8 @@
               jobTitle: jobTitle,
               status: empStatus,
               email: email,
-              phoneNumber: phoneNumber, // Pass phoneNumber as a string
-              dateOfBirth: formattedBirth, // Pass formatted dateOfBirth
+              phoneNumber: phoneNumber,
+              dateOfBirth: formattedBirth,
             },
           }"
         >

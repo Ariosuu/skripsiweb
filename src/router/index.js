@@ -12,6 +12,7 @@ import Employees from "../views/Employees.vue";
 import EmployeeProfile from "@/views/EmployeeProfile.vue";
 import ReimbursementView from "@/views/ReimbursementView.vue";
 import TrainingList from "@/views/TrainingList.vue";
+import ApproveReimburse from "@/views/ApproveReimburseView.vue";
 
 const routes = [
   {
@@ -80,6 +81,11 @@ const routes = [
     path: "/training-list",
     name: "TrainingList",
     component: TrainingList,
+  },
+  {
+    path: "/approve-reimbursement",
+    name: "Approve Reimbursement",
+    component: ApproveReimburse,
   },
 ];
 

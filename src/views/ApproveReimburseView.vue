@@ -10,7 +10,7 @@
 
   <v-card max-height="800" class="ma-4">
     <v-data-table
-      :items="request"
+      :items="ReimList"
       :headers="headers"
       hide-default-footer
       class="px-4"
@@ -18,7 +18,7 @@
       items-per-page="-1"
     >
       <template v-slot:item.date="{ value }">
-        {{ value.toLocaleDateString() }}
+        {{ value }}
       </template>
 
       <template v-slot:item.bill="{ value }">
@@ -31,7 +31,7 @@
       </template>
 
       <template v-slot:item.view="{ item }">
-        <v-btn icon flat size="sm" @click="viewRequest(request.indexOf(item))">
+        <v-btn icon flat size="sm" @click="viewRequest(ReimList.indexOf(item))">
           <v-icon :icon="mdiEye" color="#1985A1" />
         </v-btn>
       </template>
@@ -137,14 +137,57 @@
 </template>
 
 <script setup>
-import { mdiCalendar, mdiClose, mdiEye, mdiLogout } from "@mdi/js";
-import { reactive, ref } from "vue";
+import {
+  mdiCalendar,
+  mdiClose,
+  mdiEye,
+  mdiLogout,
+  mdiFilter,
+  mdiUpload,
+} from "@mdi/js";
+import { reactive, ref, onMounted, computed, watch } from "vue";
 import { VDateInput } from "vuetify/labs/VDateInput";
+import { VFileUpload } from "vuetify/labs/VFileUpload";
 import { useRules } from "vuetify/labs/rules";
+import { db, projectAuth } from "@/firebase/config";
+import {
+  collection,
+  getDocs,
+  updateDoc,
+  addDoc,
+  onSnapshot,
+  doc,
+} from "firebase/firestore";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 
 const requestDialog = ref(false);
-const isValid = ref(false);
 const rules = useRules();
+const auth = getAuth();
+const reimburseDialog = ref(false);
+const isNew = ref(false);
+const reqName = ref();
+const reqPos = ref();
+const allReim = ref([]);
+const ReimList = ref([]);
+const docRef = collection(db, "reimburse");
+const isValid = ref(false);
+const filterReim = ref("");
+
+const unsubscribe = onSnapshot(docRef, (snapshot) => {
+  let docs = [];
+  snapshot.docs.forEach((doc) => {
+    docs.push({ ...doc.data(), id: doc.id });
+  });
+
+  const formattedDocs = docs.map((item) => {
+    const newItem = { ...item };
+    if (newItem.date && newItem.date.toDate) {
+      newItem.date = newItem.date.toDate().toLocaleDateString();
+    }
+    return newItem;
+  });
+  ReimList.value = formattedDocs.filter((item) => item.status === "Pending");
+});
 
 const noZero = (x) => {
   if (x == 0) {
@@ -171,20 +214,6 @@ const headers = [
   },
 ];
 
-const request = ref([
-  {
-    name: "Daniel Garyo",
-    date: new Date(),
-    bill: 2000000,
-    approved: 0,
-    status: "Pending",
-    notes: "Eric stole my food",
-    receiptFile: null,
-    receiptImage:
-      "https://forum.sambapos.com/uploads/default/optimized/3X/8/f/8ffc4d77fe5175cf83fbc4bbed52d7cfdd031d71_2_690x1000.jpeg",
-  },
-]);
-
 const requestForm = reactive({
   name: "",
   date: new Date(),
@@ -194,16 +223,18 @@ const requestForm = reactive({
   notes: "",
   receiptFile: null,
   receiptImage: null,
+  _index: null,
 });
 
 const viewRequest = (x) => {
-  requestForm.name = request.value[x].name;
-  requestForm.date = request.value[x].date;
-  requestForm.bill = request.value[x].bill;
-  requestForm.approved = request.value[x].approved;
-  requestForm.notes = request.value[x].notes;
-  requestForm.receiptFile = request.value[x].receiptFile;
-  requestForm.receiptImage = request.value[x].receiptImage;
+  requestForm.name = ReimList.value[x].name;
+  requestForm.date = ReimList.value[x].date;
+  requestForm.bill = ReimList.value[x].bill;
+  requestForm.approved = ReimList.value[x].approved;
+  requestForm.notes = ReimList.value[x].notes;
+  requestForm.receiptFile = ReimList.value[x].receiptFile;
+  requestForm.receiptImage = ReimList.value[x].detail;
+  requestForm._index = x;
   requestDialog.value = true;
 };
 
@@ -218,17 +249,24 @@ const closeDialog = () => {
   requestDialog.value = false;
 };
 
-const decision = (x) => {
+const decision = async (x) => {
   if (isValid.value) {
-    if (x == "Approve") {
-      // logic for approve
+    const idx = requestForm._index;
+    const docId = ReimList.value[idx]?.id;
+    if (docId) {
+      const docRef = doc(db, "reimburse", docId);
+      if (x === "Approve") {
+        await updateDoc(docRef, {
+          approved: requestForm.approved,
+          status: "Approved",
+        });
+      } else if (x === "Reject") {
+        await updateDoc(docRef, {
+          approved: requestForm.approved,
+          status: "Rejected",
+        });
+      }
     }
-    closeDialog();
-  }
-
-  if (x == "Reject") {
-    // logic for reject
-
     closeDialog();
   }
 };

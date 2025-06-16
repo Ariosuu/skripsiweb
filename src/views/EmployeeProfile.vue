@@ -44,7 +44,6 @@
           Personal Information
         </v-col>
         <v-divider />
-        <!-- NOT EDITING -->
         <v-col cols="2">
           <span>First Name</span>
           <br />
@@ -87,7 +86,6 @@
           Employment Details
         </v-col>
         <v-divider />
-        <!-- NOT EDITING -->
         <v-col cols="2">
           <span>Job Title </span>
           <br />

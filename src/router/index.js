@@ -15,8 +15,9 @@ import TrainingList from "@/views/TrainingList.vue";
 import ApproveReimburse from "@/views/ApproveReimburseView.vue";
 
 const routes = [
+  { path: "/", redirect: { name: "Login" } },
   {
-    path: "/",
+    path: "/home",
     name: "home",
     component: HomeView,
   },

@@ -73,7 +73,7 @@ const userRef = collection(db, "employees");
 const empRole = ref();
 
 const items = ref([
-  { icon: mdiHome, title: "Home", route: "/" },
+  { icon: mdiHome, title: "Home", route: "/home" },
   {
     icon: mdiCurrencyUsd,
     title: "Pay",
@@ -95,7 +95,7 @@ const items = ref([
 ]);
 
 const items2 = ref([
-  { icon: mdiHome, title: "Home", route: "/" },
+  { icon: mdiHome, title: "Home", route: "/home" },
   {
     icon: mdiCurrencyUsd,
     title: "Pay",

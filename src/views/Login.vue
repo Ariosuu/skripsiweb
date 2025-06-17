@@ -67,7 +67,7 @@ const handleSubmit = async () => {
   await login(email.value, password.value);
 
   if (!error.value) {
-    router.push("/");
+    router.push("home");
   }
 };
 </script>

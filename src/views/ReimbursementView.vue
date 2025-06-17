@@ -339,7 +339,6 @@ const viewReimburse = (x) => {
   isNew.value = false;
   reimburseForm.value = { ...newReim.value[x] };
   reimburseForm.value.receiptImage = newReim.value[x].detail;
-  console.log(reimburseForm.value);
   reimburseDialog.value = true;
 };
 

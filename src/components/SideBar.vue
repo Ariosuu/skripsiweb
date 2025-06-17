@@ -8,34 +8,9 @@
         v-for="item in displayedItems"
         :key="item.title"
       >
-        <v-list-item
-          v-if="!item.sub"
-          link
-          router
-          :to="item.route"
-          :prepend-icon="item.icon"
-        >
+        <v-list-item link router :to="item.route" :prepend-icon="item.icon">
           <v-list-item-title>{{ item.title }}</v-list-item-title>
         </v-list-item>
-
-        <v-list-group v-else :value="item.title" collapse-icon="">
-          <template v-slot:activator="{ props }">
-            <v-list-item v-bind="props" :prepend-icon="item.icon" disabled>
-              <v-list-item-title>
-                {{ item.title }}
-              </v-list-item-title>
-            </v-list-item>
-          </template>
-          <v-list-item
-            v-for="sub in item.sub"
-            :key="sub.title"
-            link
-            router
-            :to="sub.route"
-          >
-            <v-list-item-title>{{ sub.title }}</v-list-item-title>
-          </v-list-item>
-        </v-list-group>
       </v-container>
     </v-list>
   </v-navigation-drawer>
@@ -45,10 +20,13 @@
 import { ref, computed } from "vue";
 import { useDisplay } from "vuetify";
 import {
+  mdiAccountCash,
   mdiAccountCheck,
   mdiAccountGroup,
+  mdiCashSync,
   mdiClockTimeFour,
   mdiCurrencyUsd,
+  mdiFileClock,
   mdiFormatListBulleted,
   mdiHome,
   mdiPlaylistEdit,
@@ -76,17 +54,19 @@ const items = ref([
   { icon: mdiHome, title: "Home", route: "/home" },
   {
     icon: mdiCurrencyUsd,
-    title: "Pay",
-    sub: [
-      { title: "PaySlip", route: "/payslip" },
-      { title: "Reimbursement", route: "/reimbursement" },
-      { title: "Approve Reimbursement", route: "/approve-reimbursement" },
-    ],
+    title: "PaySlip",
+    route: "/payslip",
+  },
+  { icon: mdiCashSync, title: "Reimbursement", route: "/reimbursement" },
+  {
+    icon: mdiAccountCash,
+    title: "Approve Reimbursement",
+    route: "/approve-reimbursement",
   },
   { icon: mdiAccountCheck, title: "Attendance", route: "/attendance" },
   { icon: mdiClockTimeFour, title: "Time Off", route: "/timeoff" },
   {
-    icon: mdiClockTimeFour,
+    icon: mdiFileClock,
     title: "Approve Time Off",
     route: "/approve-timeoff",
   },
@@ -103,12 +83,10 @@ const items2 = ref([
   { icon: mdiHome, title: "Home", route: "/home" },
   {
     icon: mdiCurrencyUsd,
-    title: "Pay",
-    sub: [
-      { title: "PaySlip", route: "/payslip" },
-      { title: "Reimbursement", route: "/reimbursement" },
-    ],
+    title: "PaySlip",
+    route: "/payslip",
   },
+  { icon: mdiCashSync, title: "Reimbursement", route: "/reimbursement" },
   { icon: mdiAccountCheck, title: "Attendance", route: "/attendance" },
   { icon: mdiClockTimeFour, title: "Time Off", route: "/timeoff" },
   { icon: mdiFormatListBulleted, title: "Training", route: "/training" },

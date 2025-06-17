@@ -108,7 +108,7 @@
                 density="compact"
                 width="auto"
                 type="number"
-                :rules="[rules.required('You have to fill this field'), noZero]"
+                :rules="[rules.required('You have to fill this field')]"
               ></v-text-field>
             </v-col>
 
@@ -255,14 +255,18 @@ const decision = async (x) => {
     const docId = ReimList.value[idx]?.id;
     if (docId) {
       const docRef = doc(db, "reimburse", docId);
+      let approvedAmount = requestForm.approved;
+      if (typeof approvedAmount === "string") {
+        approvedAmount = Number(approvedAmount);
+      }
       if (x === "Approve") {
         await updateDoc(docRef, {
-          approved: requestForm.approved,
+          approved: approvedAmount,
           status: "Approved",
         });
       } else if (x === "Reject") {
         await updateDoc(docRef, {
-          approved: requestForm.approved,
+          approved: approvedAmount,
           status: "Rejected",
         });
       }

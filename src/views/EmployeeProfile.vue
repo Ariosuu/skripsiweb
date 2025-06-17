@@ -242,7 +242,9 @@ import {
   doc,
 } from "firebase/firestore";
 import { db, projectAuth } from "@/firebase/config";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
+const auth = getAuth();
 const route = useRoute();
 const id = route.query.id;
 const fullName = route.query.fullName;
@@ -254,11 +256,34 @@ const status = route.query.status;
 const dateOfBirth = new Date(route.query.dateOfBirth);
 const phoneNumber = route.query.phoneNumber;
 const email = route.query.email;
-const isHR = route.query.isHR;
 const editDialog = ref(false);
 const isValid = ref(false);
 const rules = useRules();
+const isHR = ref();
 
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    try {
+      const querySnapshot = await getDocs(collection(db, "employees"));
+      const docs = querySnapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      }));
+      const currentUser = docs.find(
+        (doc) => doc.uid === user.uid || doc.email === user.email
+      );
+      if (currentUser) {
+        isHR.value = currentUser.isHR;
+
+        await fetchLastClockIn();
+      } else {
+        console.error("User not found in the database.");
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  }
+});
 const profileForm = reactive({
   firstName: "",
   lastName: "",

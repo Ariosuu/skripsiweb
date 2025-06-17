@@ -34,7 +34,6 @@
               email: email,
               phoneNumber: phoneNumber,
               dateOfBirth: formattedBirth,
-              isHR: isHR,
             },
           }"
         >
@@ -182,6 +181,7 @@ import {
   limit,
   doc,
   Timestamp,
+  getDoc,
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { signOut } from "firebase/auth";
@@ -200,6 +200,8 @@ const lastClockInTime = ref(null);
 const reset = ref(false);
 const items = ref([]);
 const currentDate = ref(new Date());
+const checkDate = ref();
+const lastCheck = ref();
 
 const img = [
   {
@@ -222,7 +224,7 @@ const empStatus = ref();
 const email = ref();
 const phoneNumber = ref();
 const dateOfBirth = ref();
-const isHR = ref();
+
 const formattedBirth = computed(() => {
   if (dateOfBirth.value instanceof Timestamp) {
     return dateOfBirth.value.toDate().toLocaleDateString("en-US");
@@ -250,10 +252,10 @@ onAuthStateChanged(auth, async (user) => {
         empStatus.value = currentUser.empStatus;
         email.value = currentUser.email;
         phoneNumber.value = currentUser.phoneNumber;
-        isHR.value = currentUser.isHR;
         dateOfBirth.value = currentUser.dateofBirth;
         ID.value = currentUser.id;
         leaveRemaining.value = currentUser.timeOff;
+        lastCheck.value = currentUser.lastCheck;
 
         await fetchLastClockIn();
       } else {
@@ -279,25 +281,6 @@ const formatTime = (date) => {
   });
 };
 
-const getResetValue = () => {
-  const storedReset = localStorage.getItem("reset");
-  return storedReset === "true";
-};
-
-const setResetValue = (value) => {
-  localStorage.setItem("reset", value.toString());
-};
-
-reset.value = getResetValue();
-
-const displayClockInMessage = computed(() => {
-  if (reset.value) {
-    return "--";
-  } else {
-    return lastClockInTime.value || "--";
-  }
-});
-
 const formatDate = () => {
   const date = new Date();
   const day = String(date.getDate()).padStart(2, "0");
@@ -306,7 +289,7 @@ const formatDate = () => {
   return `${day}/${month}/${year}`;
 };
 
-const clockIn = async () => {
+const clockIn = () => {
   const now = new Date();
   const time = formatTime(now);
   const hour = now.getHours();
@@ -316,59 +299,81 @@ const clockIn = async () => {
 
   const status = timeDecimal > 9 ? "Late" : "On Time";
 
-  const newRecord = {
+  newAttendance.value.push({
     date: formatDate(),
     clockedIn: time,
     clockedOut: "-",
     status,
-  };
-
-  try {
-    await addDoc(
-      collection(db, "employees", ID.value, "attendance"),
-      newRecord
-    );
-    await fetchLastClockIn();
-    reset.value = false;
-    setResetValue(reset.value);
-  } catch (error) {
-    console.error("Error clocking in:", error);
-  }
-};
-
-const fetchLastClockIn = async () => {
-  if (!ID.value) return;
-  const attendanceRef = collection(db, "employees", ID.value, "attendance");
-  const q = query(attendanceRef, orderBy("clockedIn", "desc"), limit(1));
-  const snapshot = await getDocs(q);
-  if (!snapshot.empty) {
-    const doc = snapshot.docs[0];
-    lastClockInTime.value = doc.data().clockedIn;
-  }
+  });
+  recordData();
+  window.location.reload();
 };
 
 const clockOut = async () => {
+  if (newAttendance.value.length > 0) {
+    const lastRecord = newAttendance.value[newAttendance.value.length - 1];
+    if (lastRecord.clockedOut === "-") {
+      lastRecord.clockedOut = formatTime(new Date());
+    }
+  }
   try {
-    const attendanceRef = collection(db, "employees", ID.value, "attendance");
-    const q = query(attendanceRef, orderBy("clockedIn", "desc"), limit(1));
-    const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
-      const lastRecordDoc = querySnapshot.docs[0];
-      const lastRecord = lastRecordDoc.data();
-      const lastRecordId = lastRecordDoc.id;
-      const docRef = doc(db, "employees", ID.value, "attendance", lastRecordId);
-
+    if (lastCheck.value) {
+      const docRef = doc(
+        db,
+        "employees",
+        ID.value,
+        "attendance",
+        lastCheck.value
+      );
       await updateDoc(docRef, {
         clockedOut: formatTime(new Date()),
       });
       console.log("Clocked out successfully!");
-      reset.value = true;
-      setResetValue(reset.value);
+    } else {
+      console.log("No lastCheck record found.");
     }
   } catch (error) {
     console.error("Error clocking out:", error);
   }
+  window.location.reload();
 };
+
+const recordData = () => {
+  const lastRecord = newAttendance.value[newAttendance.value.length - 1];
+  addDoc(collection(db, "employees", ID.value, "attendance"), {
+    date: lastRecord.date,
+    clockedIn: lastRecord.clockedIn,
+    clockedOut: lastRecord.clockedOut,
+    status: lastRecord.status,
+  }).then((docRef) => {
+    lastCheck.value = docRef.id;
+    updateDoc(doc(db, "employees", ID.value), {
+      lastCheck: lastCheck.value,
+    });
+  });
+};
+
+const fetchLastClockIn = async () => {
+  if (ID.value && lastCheck.value) {
+    const attendanceDocRef = doc(
+      db,
+      "employees",
+      ID.value,
+      "attendance",
+      lastCheck.value
+    );
+    const attendanceDoc = await getDoc(attendanceDocRef);
+    if (attendanceDoc.exists()) {
+      const data = attendanceDoc.data();
+      const lastClockedIn = data.clockedIn;
+      lastClockInTime.value = lastClockedIn;
+    }
+  }
+};
+
+const displayClockInMessage = computed(() => {
+  return lastClockInTime.value ? lastClockInTime.value : "-";
+});
 
 // TRAINING CODE
 
@@ -414,7 +419,9 @@ const formattedDate = computed(() => {
 });
 
 onMounted(() => {
+  checkDate.value = new Date().toLocaleDateString("en-US");
   currentDate.value = new Date(); // Buat ngeset date ke hari ini tiap kali mounted
+  console.log("Current date set to:", checkDate.value);
 });
 </script>
 

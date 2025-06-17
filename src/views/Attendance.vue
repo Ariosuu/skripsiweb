@@ -104,6 +104,7 @@ const userRef = collection(db, "employees");
 const ID = ref();
 const newAttendance = ref([]);
 const attendanceRecords = ref([]);
+const lastCheck = ref();
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
@@ -119,6 +120,7 @@ onAuthStateChanged(auth, (user) => {
         userName.value = currentUser.firstName + " " + currentUser.lastName;
         userPos.value = currentUser.jobTitle;
         ID.value = currentUser.id;
+        lastCheck.value = currentUser.lastCheck;
 
         getDocs(collection(db, "employees", ID.value, "attendance")).then(
           (snapshot) => {
@@ -178,24 +180,20 @@ const clockOut = async () => {
     }
   }
   try {
-    const attendanceRef = collection(db, "employees", ID.value, "attendance");
-    const q = query(attendanceRef, orderBy("clockedIn", "desc"), limit(1));
-
-    const querySnapshot = await getDocs(q);
-
-    if (!querySnapshot.empty) {
-      const lastRecordDoc = querySnapshot.docs[0];
-      const lastRecord = lastRecordDoc.data();
-      const lastRecordId = lastRecordDoc.id;
-      const docRef = doc(db, "employees", ID.value, "attendance", lastRecordId);
-
+    if (lastCheck.value) {
+      const docRef = doc(
+        db,
+        "employees",
+        ID.value,
+        "attendance",
+        lastCheck.value
+      );
       await updateDoc(docRef, {
         clockedOut: formatTime(new Date()),
       });
-
       console.log("Clocked out successfully!");
     } else {
-      console.log("No clock-in record found.");
+      console.log("No lastCheck record found.");
     }
   } catch (error) {
     console.error("Error clocking out:", error);
@@ -210,6 +208,11 @@ const recordData = () => {
     clockedIn: lastRecord.clockedIn,
     clockedOut: lastRecord.clockedOut,
     status: lastRecord.status,
+  }).then((docRef) => {
+    lastCheck.value = docRef.id;
+    updateDoc(doc(db, "employees", ID.value), {
+      lastCheck: lastCheck.value,
+    });
   });
 };
 

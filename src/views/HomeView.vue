@@ -1,10 +1,14 @@
 <template>
-  <v-app-bar color="#C5C3C6" flat height="64">
+  <!-- <v-app-bar color="#C5C3C6" flat height="64">
     <p color="#C5C3C6" class="text-h6 font-weight-bold pl-8">Home</p>
     <v-spacer></v-spacer>
-    <v-avatar color="surface-variant"></v-avatar>
+    <v-avatar color="surface-variant">
+      <span class="text-subtitle-1">
+        {{ firstName ? firstName[0] : "" }}{{ lastName ? lastName[0] : "" }}
+      </span>
+    </v-avatar>
     <v-btn :icon="mdiLogout" @click="handleLogout" to="/login"> </v-btn>
-  </v-app-bar>
+  </v-app-bar> -->
 
   <v-container fluid class="pa-0">
     <!-- blue bar -->
@@ -13,7 +17,16 @@
       class="d-flex align-center pa-4 pl-10"
       height="170"
     >
-      <v-avatar size="100" rounded="0" class="mr-4"> </v-avatar>
+      <v-avatar
+        size="100"
+        class="mr-4"
+        color="surface-variant"
+        style="border-radius: 16px"
+      >
+        <span class="text-h4">
+          {{ firstName ? firstName[0] : "" }}{{ lastName ? lastName[0] : "" }}
+        </span>
+      </v-avatar>
       <div class="white--text">
         <div class="text-h6 font-weight-bold">Welcome back,</div>
         <div class="text-h5 font-weight-bold">{{ userName }}</div>
@@ -47,7 +60,7 @@
     <v-row class="pa-4" dense>
       <v-col cols="8" class="pa-2">
         <v-card class="d-flex align-center justify-center fill-height">
-          <v-carousel height="150" hide-delimiters>
+          <v-carousel height="150" hide-delimiters cycle show-arrows="hover">
             <v-carousel-item
               v-for="(item, i) in img"
               :key="i"

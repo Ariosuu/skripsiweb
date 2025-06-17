@@ -40,10 +40,6 @@
             Log In
           </v-btn>
 
-          <div class="d-flex justify-center mb-4">
-            <v-btn variant="text" to="/signup">Create an account</v-btn>
-          </div>
-
           <div v-if="error">{{ error }}</div>
         </v-card>
       </v-col>

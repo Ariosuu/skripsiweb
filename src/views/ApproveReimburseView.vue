@@ -1,13 +1,4 @@
 <template>
-  <v-app-bar color="#C5C3C6" flat height="64">
-    <p color="#C5C3C6" class="text-h6 font-weight-bold pl-8">
-      Approve Reimbursement
-    </p>
-    <v-spacer></v-spacer>
-    <v-avatar size="32"> </v-avatar>
-    <v-btn :icon="mdiLogout"> </v-btn>
-  </v-app-bar>
-
   <v-card max-height="800" class="ma-4">
     <v-data-table
       :items="ReimList"

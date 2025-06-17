@@ -1,11 +1,4 @@
 <template>
-  <v-app-bar color="#C5C3C6" flat height="64">
-    <p color="#C5C3C6" class="text-h6 font-weight-bold pl-8">Time Off</p>
-    <v-spacer></v-spacer>
-    <v-avatar size="32"> </v-avatar>
-    <v-btn :icon="mdiLogout" @click="handleLogout" to="/login"> </v-btn>
-  </v-app-bar>
-
   <v-card class="ma-4" height="95%">
     <v-card-text>
       <v-card flat color="#D9D9D9">
@@ -350,7 +343,6 @@ const closeDialog = () => {
 const leaveDaysUsed = () => {
   leaveUse.value = 0;
   for (let i = 0; i < request.value.fromTo.length; i++) {
-    // console.log(request.value.fromTo[i].getDay());
     if (
       request.value.fromTo[i].getDay() != 6 &&
       request.value.fromTo[i].getDay() != 0

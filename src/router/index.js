@@ -19,7 +19,7 @@ const routes = [
   { path: "/", redirect: { name: "Login" } },
   {
     path: "/home",
-    name: "home",
+    name: "Home",
     component: HomeView,
   },
 
@@ -40,7 +40,7 @@ const routes = [
   },
   {
     path: "/timeoff",
-    name: "timeoff",
+    name: "Timeoff",
     component: TimeOffView,
   },
   {
@@ -50,7 +50,7 @@ const routes = [
   },
   {
     path: "/salary-detail",
-    name: "salary-detail",
+    name: "Salary Detail",
     component: SalaryDetailView,
   },
   {
@@ -60,7 +60,7 @@ const routes = [
   },
   {
     path: "/payslipdetail",
-    name: "PayslipDetail",
+    name: "Payslip Detail",
     component: PayslipDetail,
   },
   {
@@ -76,12 +76,12 @@ const routes = [
   },
   {
     path: "/reimbursement",
-    name: "reimbursement",
+    name: "Reimbursement",
     component: ReimbursementView,
   },
   {
     path: "/training-list",
-    name: "TrainingList",
+    name: "Training List",
     component: TrainingList,
   },
   {
@@ -91,7 +91,7 @@ const routes = [
   },
   {
     path: "/approve-timeoff",
-    name: "approve-timeoff",
+    name: "Approve Timeoff",
     component: ApproveTimeOffView,
   },
 ];

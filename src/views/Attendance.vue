@@ -1,11 +1,4 @@
 <template>
-  <v-app-bar color="#C5C3C6" flat height="64">
-    <p color="#C5C3C6" class="text-h6 font-weight-bold pl-8">Attendance</p>
-    <v-spacer></v-spacer>
-    <v-avatar color="surface-variant" size="small"> </v-avatar>
-    <v-btn :icon="mdiLogout"> </v-btn>
-  </v-app-bar>
-
   <v-card max-height="800" class="pa-4 ml-5 mr-5 mt-5" no-gutters>
     <v-card color="#D9D9D9" class="pa-4" no-gutters>
       <v-col cols="12">

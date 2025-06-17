@@ -1,15 +1,4 @@
 <template>
-  <v-app-bar color="#C5C3C6" flat height="64">
-    <p color="#C5C3C6" class="text-h6 font-weight-bold pl-8">
-      Employee Profile
-    </p>
-    <v-spacer></v-spacer>
-    <v-avatar color="surface-variant" size="small">
-      <span class="text-h6"> {{ firstName[0] }}{{ lastName[0] }} </span>
-    </v-avatar>
-    <v-btn :icon="mdiLogout"> </v-btn>
-  </v-app-bar>
-
   <v-card max-height="800" class="ma-4">
     <v-card-text>
       <v-row class="d-flex align-center">
@@ -31,7 +20,11 @@
         <v-card-text>
           <v-row>
             <v-col cols="2" class="d-flex justify-left">
-              <v-avatar size="125" rounded="0" color="surface-variant">
+              <v-avatar
+                size="125"
+                color="surface-variant"
+                style="border-radius: 16px"
+              >
                 <span class="text-h3">
                   {{ firstName[0] }}{{ lastName[0] }}
                 </span>

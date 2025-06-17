@@ -1,11 +1,4 @@
 <template>
-  <v-app-bar color="#C5C3C6" flat height="64">
-    <p color="#C5C3C6" class="text-h6 font-weight-bold pl-8">Payslip Details</p>
-    <v-spacer></v-spacer>
-    <v-avatar size="32"> </v-avatar>
-    <v-btn :icon="mdiLogout"> </v-btn>
-  </v-app-bar>
-
   <v-card class="ma-5 pa-4">
     <h2>Payslip for {{ month }}</h2>
 

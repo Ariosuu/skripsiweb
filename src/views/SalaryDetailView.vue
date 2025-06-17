@@ -1,11 +1,4 @@
 <template>
-  <v-app-bar color="#C5C3C6" flat height="64">
-    <p color="#C5C3C6" class="text-h6 font-weight-bold pl-8">Salary Detail</p>
-    <v-spacer></v-spacer>
-    <v-avatar size="32"> </v-avatar>
-    <v-btn :icon="mdiLogout"> </v-btn>
-  </v-app-bar>
-
   <v-select
     class="ma-4"
     :items="['January', 'February']"

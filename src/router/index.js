@@ -13,6 +13,7 @@ import EmployeeProfile from "@/views/EmployeeProfile.vue";
 import ReimbursementView from "@/views/ReimbursementView.vue";
 import TrainingList from "@/views/TrainingList.vue";
 import ApproveReimburse from "@/views/ApproveReimburseView.vue";
+import ApproveTimeOffView from "@/views/ApproveTimeOffView.vue";
 
 const routes = [
   { path: "/", redirect: { name: "Login" } },
@@ -87,6 +88,11 @@ const routes = [
     path: "/approve-reimbursement",
     name: "Approve Reimbursement",
     component: ApproveReimburse,
+  },
+  {
+    path: "/approve-timeoff",
+    name: "approve-timeoff",
+    component: ApproveTimeOffView,
   },
 ];
 

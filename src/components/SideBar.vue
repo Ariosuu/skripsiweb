@@ -106,6 +106,11 @@ const items2 = ref([
   },
   { icon: mdiAccountCheck, title: "Attendance", route: "/attendance" },
   { icon: mdiClockTimeFour, title: "Time Off", route: "/timeoff" },
+  {
+    icon: mdiClockTimeFour,
+    title: "Approve Time Off",
+    route: "/approve-timeoff",
+  },
   { icon: mdiFormatListBulleted, title: "Training", route: "/training" },
 ]);
 const { mdAndUp, mdAndDown } = useDisplay();

@@ -16,9 +16,14 @@
         <v-col class="pa-2 pl-4 text-h5">Profile</v-col>
         <v-spacer />
         <v-col class="pa-2 d-flex justify-end">
-          <v-btn color="#777777" flat v-if="isHR" @click="openEdit">
-            Edit Profile</v-btn
+          <v-btn
+            color="#777777"
+            flat
+            v-if="isHR === true || isHR === 'true'"
+            @click="openEdit"
           >
+            Edit Profile
+          </v-btn>
         </v-col>
       </v-row>
 
@@ -249,7 +254,7 @@ const status = route.query.status;
 const dateOfBirth = new Date(route.query.dateOfBirth);
 const phoneNumber = route.query.phoneNumber;
 const email = route.query.email;
-const isHR = ref(true);
+const isHR = route.query.isHR;
 const editDialog = ref(false);
 const isValid = ref(false);
 const rules = useRules();
@@ -304,7 +309,7 @@ const confirmEdit = async () => {
     await updateDoc(doc(db, "employees", route.query.id), {
       firstName: profileForm.firstName,
       lastName: profileForm.lastName,
-      dateOfBirth: profileForm.dateOfBirth,
+      dateofBirth: profileForm.dateOfBirth,
       phoneNumber: profileForm.phoneNumber,
       email: profileForm.email,
       jobTitle: profileForm.jobTitle,

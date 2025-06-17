@@ -173,7 +173,7 @@
 
 <script setup>
 import { mdiClose, mdiEye, mdiLogout } from "@mdi/js";
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { VDateInput } from "vuetify/labs/VDateInput";
 import { useRules } from "vuetify/labs/rules";
 import { db } from "@/firebase/config";
@@ -193,6 +193,42 @@ const leaveRemaining = ref();
 const auth = getAuth();
 const reqName = ref();
 const reqPos = ref();
+const colRef = collection(db, "employees");
+const reqRef = collection(db, "leaves");
+const leaveUse = ref(0);
+const timeRequest = ref([]);
+const allRequests = ref([]);
+
+onSnapshot(reqRef, (snapshot) => {
+  let docs = [];
+  snapshot.docs.forEach((doc) => {
+    docs.push({ ...doc.data(), id: doc.id });
+  });
+
+  const formattedDocs = docs.map((item) => {
+    const newItem = { ...item };
+    if (newItem.from && newItem.from.toDate) {
+      newItem.from = newItem.from.toDate().toLocaleDateString();
+    }
+    if (newItem.to && newItem.to.toDate) {
+      newItem.to = newItem.to.toDate().toLocaleDateString();
+    }
+    return newItem;
+  });
+  allRequests.value = formattedDocs;
+});
+
+watch(
+  [reqName, allRequests],
+  () => {
+    if (reqName.value) {
+      timeRequest.value = allRequests.value.filter(
+        (item) => item.name === reqName.value
+      );
+    }
+  },
+  { immediate: true }
+);
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
@@ -216,31 +252,6 @@ onAuthStateChanged(auth, (user) => {
 const handleLogout = () => {
   signOut(projectAuth);
 };
-
-const colRef = collection(db, "employees");
-const reqRef = collection(db, "leaves");
-const leaveUse = ref(0);
-const timeRequest = ref([]);
-
-const unsubscribe = onSnapshot(reqRef, (snapshot) => {
-  let docs = [];
-  snapshot.docs.forEach((doc) => {
-    docs.push({ ...doc.data(), id: doc.id });
-  });
-
-  const formattedDocs = docs.map((item) => {
-    const newItem = { ...item };
-    if (newItem.from && newItem.from.toDate) {
-      newItem.from = newItem.from.toDate().toLocaleDateString();
-    }
-    if (newItem.to && newItem.to.toDate) {
-      newItem.to = newItem.to.toDate().toLocaleDateString();
-    }
-    return newItem;
-  });
-
-  timeRequest.value = formattedDocs;
-});
 
 const request = ref({
   name: reqName,

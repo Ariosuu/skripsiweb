@@ -34,6 +34,7 @@
               email: email,
               phoneNumber: phoneNumber,
               dateOfBirth: formattedBirth,
+              isHR: isHR,
             },
           }"
         >
@@ -221,6 +222,7 @@ const empStatus = ref();
 const email = ref();
 const phoneNumber = ref();
 const dateOfBirth = ref();
+const isHR = ref();
 const formattedBirth = computed(() => {
   if (dateOfBirth.value instanceof Timestamp) {
     return dateOfBirth.value.toDate().toLocaleDateString("en-US");
@@ -248,9 +250,11 @@ onAuthStateChanged(auth, async (user) => {
         empStatus.value = currentUser.empStatus;
         email.value = currentUser.email;
         phoneNumber.value = currentUser.phoneNumber;
+        isHR.value = currentUser.isHR;
         dateOfBirth.value = currentUser.dateofBirth;
         ID.value = currentUser.id;
         leaveRemaining.value = currentUser.timeOff;
+
         await fetchLastClockIn();
       } else {
         console.error("User not found in the database.");

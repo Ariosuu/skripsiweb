@@ -56,6 +56,11 @@ const items = ref([
   },
   { icon: mdiAccountCheck, title: "Attendance", route: "/attendance" },
   { icon: mdiClockTimeFour, title: "Time Off", route: "/timeoff" },
+  {
+    icon: mdiClockTimeFour,
+    title: "Approve Time Off",
+    route: "/approve-timeoff",
+  },
   { icon: mdiFormatListBulleted, title: "Training", route: "/training" },
   { icon: mdiAccountGroup, title: "Employees", route: "/employees" },
 ]);

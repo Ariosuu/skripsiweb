@@ -45,136 +45,113 @@
     <!-- CONTENT -->
 
     <v-row class="pa-4" dense>
-      <!-- news -->
-      <v-col cols="12" sm="6" md="3" class="pa-2">
-        <v-card height="300" class="d-flex align-center justify-center">
-          NEWS
-        </v-card>
-      </v-col>
-
-      <!-- calendar -->
-      <v-col cols="12" sm="6" md="3" class="pa-2">
-        <v-card height="300" class="d-flex align-center justify-center">
-          CALENDAR
-        </v-card>
-      </v-col>
-
-      <!-- clock in/out -->
-      <v-col cols="12" md="6" class="pa-2">
-        <v-row no-gutters class="fill-height">
-          <v-col cols="12">
-            <v-card class="pa-4 h-auto">
-              <v-row no-gutters>
-                <v-col cols="6">
-                  <v-btn
-                    variant="plain"
-                    size="x-large"
-                    block
-                    base-color="#46494C"
-                    @click="clockIn"
-                  >
-                    <v-icon
-                      color="#1985A1"
-                      slot="prepend-icon"
-                      :icon="mdiLoginVariant"
-                      :size="30"
-                    />
-                    <div class="pa-2 text-h5 font-weight-medium" slot="default">
-                      CLOCK IN
-                    </div>
-                  </v-btn>
-                </v-col>
-                <v-divider vertical />
-                <v-col cols="6">
-                  <v-btn variant="plain" size="x-large" block @click="clockOut">
-                    <v-icon
-                      color="#1985A1"
-                      slot="prepend-icon"
-                      :icon="mdiLogoutVariant"
-                      :size="30"
-                    />
-                    <div class="pa-2 text-h5 font-weight-medium" slot="default">
-                      CLOCK OUT
-                    </div>
-                  </v-btn>
-                </v-col>
-              </v-row>
-              <v-divider class="my-2"></v-divider>
-              <v-row>
-                <v-col cols="12" class="text-center">
-                  Clocked in at: <br />
-                  <strong class="text-h4">
-                    {{ displayClockInMessage }}
-                  </strong>
-                </v-col>
-              </v-row>
-            </v-card>
-          </v-col>
-
-          <!-- LEAVE REMAINING -->
-          <v-col cols="12">
-            <v-card class="fill-height">
-              <v-card-title class="text-center">
-                Leave Remaining: {{ leaveRemaining }} days
-              </v-card-title>
-              <v-card-text>
-                <v-btn to="/timeoff" size="large" color="#207a9a" block flat
-                  >Request Leave</v-btn
-                >
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-col>
-
-      <!-- OUTLOOK -->
-      <v-col cols="12" sm="6" md="6" class="pa-2">
-        <v-card>
-          <v-card-title>OUTLOOK INBOX</v-card-title>
-          <v-card-text>
-            <v-sheet
-              color="grey lighten-3"
-              class="pa-4 d-flex justify-space-between align-center"
-              rounded
+      <v-col cols="8" class="pa-2">
+        <v-card class="d-flex align-center justify-center fill-height">
+          <v-carousel height="150" hide-delimiters>
+            <v-carousel-item
+              v-for="(item, i) in img"
+              :key="i"
+              :src="item.src"
+              @click="redirect(item.link)"
             >
-              <div>
-                Skibidi Gyatt Rizz Pt 2 Announced<br />
-                <a href="#" class="text--primary font-weight-bold"
-                  >ABSOLUTE MUST ATTEND [CLICK HERE]</a
-                >
-              </div>
-              <div class="text-right grey--text text--darken-1">
-                Thurs<br />
-                15:00
-              </div>
-            </v-sheet>
-          </v-card-text>
+            </v-carousel-item>
+          </v-carousel>
         </v-card>
       </v-col>
-
-      <!-- upcoming training -->
-      <v-col cols="12" sm="6" md="6" class="pa-2">
-        <v-card>
-          <v-card-title> UPCOMING TRAINING</v-card-title>
-          <v-card-text>
-            <v-sheet
-              color="grey lighten-3"
-              class="pa-4 d-flex justify-space-between align-center"
-              rounded
-            >
-              <div>
-                {{ latestTrainingName }}<br />
-                <small>{{ formattedDate }} - {{ latestTrainingType }}</small>
-              </div>
+      <v-col cols="4" class="pa-2">
+        <v-card class="pa-4 h-auto">
+          <v-row no-gutters>
+            <v-col cols="6">
               <v-btn
-                :icon="mdiChevronRight"
-                size="small"
-                color="#207a9a"
-                @click="redirect(latestTrainingLink)"
-              />
-            </v-sheet>
+                variant="plain"
+                size="x-large"
+                block
+                base-color="#46494C"
+                @click="clockIn"
+              >
+                <v-icon
+                  color="#1985A1"
+                  slot="prepend-icon"
+                  :icon="mdiLoginVariant"
+                  :size="30"
+                />
+                <div class="pa-2 text-h5 font-weight-medium" slot="default">
+                  CLOCK IN
+                </div>
+              </v-btn>
+            </v-col>
+            <v-divider vertical />
+            <v-col cols="6">
+              <v-btn variant="plain" size="x-large" block @click="clockOut">
+                <v-icon
+                  color="#1985A1"
+                  slot="prepend-icon"
+                  :icon="mdiLogoutVariant"
+                  :size="30"
+                />
+                <div class="pa-2 text-h5 font-weight-medium" slot="default">
+                  CLOCK OUT
+                </div>
+              </v-btn>
+            </v-col>
+          </v-row>
+          <v-divider class="my-2"></v-divider>
+          <v-row>
+            <v-col cols="12" class="text-center">
+              Clocked in at: <br />
+              <strong class="text-h4">
+                {{ displayClockInMessage }}
+              </strong>
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-col>
+
+      <v-col cols="8" class="pa-2">
+        <v-card class="d-flex align-center justify-center">
+          <v-card-text>
+            <v-calendar type="month"></v-calendar>
           </v-card-text>
         </v-card>
+      </v-col>
+
+      <v-col cols="4" class="pa-2">
+        <v-col cols="12" class="pa-0">
+          <v-card>
+            <v-card-title class="text-center">
+              Leave Remaining: {{ leaveRemaining }} days
+            </v-card-title>
+            <v-card-text>
+              <v-btn to="/timeoff" size="large" color="#207a9a" block flat
+                >Request Leave</v-btn
+              >
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" class="pa-0 pt-4">
+          <v-card>
+            <v-card-title> UPCOMING TRAINING</v-card-title>
+            <v-card-text>
+              <v-sheet
+                color="grey lighten-3"
+                class="pa-4 d-flex justify-space-between align-center"
+                rounded
+              >
+                <div>
+                  {{ latestTrainingName }}<br />
+                  <small>{{ formattedDate }} - {{ latestTrainingType }}</small>
+                </div>
+                <v-btn
+                  :icon="mdiChevronRight"
+                  size="small"
+                  color="#207a9a"
+                  @click="redirect(latestTrainingLink)"
+                />
+              </v-sheet>
+            </v-card-text>
+          </v-card>
+        </v-col>
       </v-col>
     </v-row>
   </v-container>
@@ -208,6 +185,7 @@ import {
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { signOut } from "firebase/auth";
 import { useRoute } from "vue-router";
+import { VCalendar } from "vuetify/labs/VCalendar";
 
 const route = useRoute();
 const auth = getAuth();
@@ -220,6 +198,17 @@ const { user } = getUser();
 const lastClockInTime = ref(null);
 const reset = ref(false);
 const items = ref([]);
+
+const img = [
+  {
+    src: "https://img.freepik.com/free-vector/partners-signing-contract-online-people-talking-monitor-with-document-with-signatures-flat-vector-illustration_74855-10614.jpg",
+    link: "https://www.kompas.com/",
+  },
+  {
+    src: "https://img.freepik.com/premium-vector/breaking-news-information-banner-notifies-people-with-latest-news-banners-promotional-media_101434-770.jpg",
+    link: "https://www.kompas.com/",
+  },
+];
 
 // get user data
 const userName = ref();

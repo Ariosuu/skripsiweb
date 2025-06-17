@@ -18,9 +18,9 @@
           <v-list-item-title>{{ item.title }}</v-list-item-title>
         </v-list-item>
 
-        <v-list-group v-else :value="item.title">
+        <v-list-group v-else :value="item.title" collapse-icon="">
           <template v-slot:activator="{ props }">
-            <v-list-item v-bind="props" :prepend-icon="item.icon">
+            <v-list-item v-bind="props" :prepend-icon="item.icon" disabled>
               <v-list-item-title>
                 {{ item.title }}
               </v-list-item-title>
@@ -136,3 +136,10 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 </script>
+
+<style scoped>
+.v-list-item--disabled {
+  color: #ffffff;
+  opacity: 1;
+}
+</style>

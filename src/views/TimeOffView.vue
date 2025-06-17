@@ -161,16 +161,6 @@
                 {{ request.status }}
               </v-chip>
             </v-col>
-            <v-col v-if="request.status == 'Rejected'">
-              <v-text-field
-                v-model="request.reason"
-                label="Reason"
-                variant="outlined"
-                hide-details
-                density="compact"
-                :readonly="isDetail"
-              ></v-text-field>
-            </v-col>
           </v-row>
         </v-card-text>
         <v-card-actions v-if="isRequest">

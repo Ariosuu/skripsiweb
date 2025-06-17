@@ -97,7 +97,11 @@
               </v-row>
             </v-col>
             <v-col cols="4">
-              <v-img :src="requestForm.receiptImage" height="390"></v-img>
+              <v-img
+                :src="requestForm.receiptImage"
+                max-width="390"
+                max-height="390"
+              ></v-img>
             </v-col>
 
             <v-col cols="6">

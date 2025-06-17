@@ -76,7 +76,7 @@
 
   <v-dialog v-model="reimburseDialog" width="auto" persistent>
     <v-form @submit.prevent="test" v-model="isValid">
-      <v-card width="1200">
+      <v-card width="1200" :title="isNew ? 'New Claim' : 'Claim Detail'">
         <template v-slot:append>
           <v-btn :icon="mdiClose" flat size="sm" @click="closeDialog"></v-btn>
         </template>
@@ -154,8 +154,8 @@
                 v-if="reimburseForm.receiptImage"
                 :src="reimburseForm.receiptImage"
                 alt="Receipt"
-                max-width="350"
-                max-height="350"
+                max-width="390"
+                max-height="390"
               ></v-img>
               <div v-else>No image uploaded.</div>
             </v-col>
@@ -294,7 +294,7 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 const headers = ref([
-  { title: "Claim Date", key: "date", align: "center" },
+  { title: "Claim Date", key: "date", align: "start" },
   { title: "Total Bill", key: "bill", align: "start" },
   { title: "Approved Amount", key: "approved", align: "start" },
   { title: "Status", key: "status", align: "center", sortable: false },
@@ -339,6 +339,7 @@ const viewReimburse = (x) => {
   isNew.value = false;
   reimburseForm.value = { ...newReim.value[x] };
   reimburseForm.value.receiptImage = newReim.value[x].detail;
+  console.log(reimburseForm.value);
   reimburseDialog.value = true;
 };
 

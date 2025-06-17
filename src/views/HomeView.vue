@@ -38,6 +38,7 @@
           :to="{
             name: 'Employee Profile',
             query: {
+              id: id,
               fullName: userName,
               firstName: firstName,
               lastName: lastName,
@@ -204,7 +205,7 @@ import { VCalendar } from "vuetify/labs/VCalendar";
 const route = useRoute();
 const auth = getAuth();
 const userRef = collection(db, "employees");
-const ID = ref();
+const id = ref();
 const leaveRemaining = ref();
 const newAttendance = ref([]);
 const attendanceRecords = ref([]);
@@ -266,7 +267,7 @@ onAuthStateChanged(auth, async (user) => {
         email.value = currentUser.email;
         phoneNumber.value = currentUser.phoneNumber;
         dateOfBirth.value = currentUser.dateofBirth;
-        ID.value = currentUser.id;
+        id.value = currentUser.id;
         leaveRemaining.value = currentUser.timeOff;
         lastCheck.value = currentUser.lastCheck;
 
@@ -303,23 +304,39 @@ const formatDate = () => {
 };
 
 const clockIn = () => {
-  const now = new Date();
-  const time = formatTime(now);
-  const hour = now.getHours();
-  const minutes = now.getMinutes();
+  if (verification()) {
+    console.log("You have already clocked in today.");
+    return;
+  } else {
+    const now = new Date();
+    const time = formatTime(now);
+    const hour = now.getHours();
+    const minutes = now.getMinutes();
 
-  const timeDecimal = hour + minutes / 60;
+    const timeDecimal = hour + minutes / 60;
 
-  const status = timeDecimal > 9 ? "Late" : "On Time";
+    const status = timeDecimal > 9 ? "Late" : "On Time";
 
-  newAttendance.value.push({
-    date: formatDate(),
-    clockedIn: time,
-    clockedOut: "-",
-    status,
-  });
-  recordData();
-  window.location.reload();
+    newAttendance.value.push({
+      date: formatDate(),
+      clockedIn: time,
+      clockedOut: "-",
+      status,
+    });
+    recordData();
+  }
+};
+
+const verification = async () => {
+  if (!lastCheck.value) return false; // No lastCheck, so allow clock-in
+
+  const docRef = doc(db, "employees", id.value, "attendance", lastCheck.value);
+  const docSnap = await getDoc(docRef);
+
+  if (!docSnap.exists()) return false; // No such doc, allow clock-in
+
+  const lastDate = docSnap.data().date;
+  return lastDate === checkDate.value;
 };
 
 const clockOut = async () => {
@@ -334,7 +351,7 @@ const clockOut = async () => {
       const docRef = doc(
         db,
         "employees",
-        ID.value,
+        id.value,
         "attendance",
         lastCheck.value
       );
@@ -353,25 +370,25 @@ const clockOut = async () => {
 
 const recordData = () => {
   const lastRecord = newAttendance.value[newAttendance.value.length - 1];
-  addDoc(collection(db, "employees", ID.value, "attendance"), {
+  addDoc(collection(db, "employees", id.value, "attendance"), {
     date: lastRecord.date,
     clockedIn: lastRecord.clockedIn,
     clockedOut: lastRecord.clockedOut,
     status: lastRecord.status,
   }).then((docRef) => {
     lastCheck.value = docRef.id;
-    updateDoc(doc(db, "employees", ID.value), {
+    updateDoc(doc(db, "employees", id.value), {
       lastCheck: lastCheck.value,
     });
   });
 };
 
 const fetchLastClockIn = async () => {
-  if (ID.value && lastCheck.value) {
+  if (id.value && lastCheck.value) {
     const attendanceDocRef = doc(
       db,
       "employees",
-      ID.value,
+      id.value,
       "attendance",
       lastCheck.value
     );

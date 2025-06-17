@@ -58,9 +58,29 @@ import { ref, watch, computed } from "vue";
 import { collection, getDocs, Timestamp } from "firebase/firestore";
 import { db } from "@/firebase/config";
 import getCollection from "@/composables/getCollection";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const { documents: items } = getCollection("training");
+const auth = getAuth();
 const search = ref("");
+const reqDiv = ref("");
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    getDocs(collection(db, "employees")).then((snapshot) => {
+      let docs = [];
+      snapshot.docs.forEach((doc) => {
+        docs.push({ ...doc.data(), id: doc.id });
+      });
+      const currentUser = docs.find(
+        (doc) => doc.uid === user.uid || doc.email === user.email
+      );
+      if (currentUser) {
+        reqDiv.value = currentUser.jobDivision;
+      }
+    });
+  }
+});
 
 const headers = ref([
   { title: "Training Name", key: "trainingName", align: "start", width: 200 },
@@ -70,6 +90,16 @@ const headers = ref([
   { title: "Type", key: "type", align: "center" },
   { title: "", key: "link", align: "end", sortable: "false" },
 ]);
+
+watch(
+  () => reqDiv.value,
+  (name) => {
+    if (name) {
+      items.value = items.value.filter((item) => item.division === name);
+    }
+  },
+  { immediate: true }
+);
 
 watch(
   items,

@@ -76,7 +76,7 @@
   </v-card>
 
   <v-dialog v-model="employeeDialog" width="auto" persistent>
-    <v-form @submit.prevent="confirmEmployee" v-model="isValid">
+    <v-form @submit.prevent="handleSubmit" v-model="isValid">
       <v-card width="800" title="New Employee">
         <template v-slot:append>
           <v-btn :icon="mdiClose" flat size="sm" @click="closeDialog"></v-btn>
@@ -98,6 +98,16 @@
               <v-text-field
                 label="Last Name"
                 v-model="employeeForm.lastName"
+                variant="outlined"
+                density="compact"
+                width="auto"
+                :rules="[rules.required('Cannot be Empty')]"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" class="pb-0">
+              <v-text-field
+                label="Password"
+                v-model="employeeForm.password"
                 variant="outlined"
                 density="compact"
                 width="auto"
@@ -141,7 +151,7 @@
             <v-col cols="4" class="pt-1 pb-0">
               <v-text-field
                 label="Job Division"
-                v-model="employeeForm.division"
+                v-model="employeeForm.jobDivision"
                 variant="outlined"
                 density="compact"
                 width="auto"
@@ -200,6 +210,9 @@ import { projectAuth } from "@/firebase/config";
 import getCollection from "@/composables/getCollection";
 import { VDateInput } from "vuetify/labs/VDateInput";
 import { useRules } from "vuetify/labs/rules";
+import { useRouter } from "vue-router";
+import useSignup from "@/composables/useSignup";
+import { addDoc, collection } from "firebase/firestore";
 
 const loaded = ref(false);
 const loading = ref(false);
@@ -213,11 +226,12 @@ const { documents: items } = getCollection("employees");
 const employeeForm = reactive({
   firstName: "",
   lastName: "",
-  dateOfBirth: new Date(),
+  dateOfBirth: "",
   phone: "",
   email: "",
+  password: "",
   jobTitle: "",
-  division: "",
+  jobDivision: "",
   status: "Active",
 });
 
@@ -288,9 +302,34 @@ const closeDialog = () => {
   employeeDialog.value = false;
 };
 
-const confirmEmployee = () => {
-  if (isValid.value) {
+const isSignup = ref(false);
+const { signup, error } = useSignup();
+const router = useRouter();
+
+const handleSubmit = async () => {
+  try {
+    await signup(employeeForm.email, employeeForm.password);
+
+    await addDoc(collection(db, "employees"), {
+      firstName: employeeForm.firstName,
+      lastName: employeeForm.lastName,
+      dateofBirth:
+        employeeForm.dateOfBirth instanceof Date
+          ? Timestamp.fromDate(employeeForm.dateOfBirth)
+          : employeeForm.dateOfBirth,
+      phoneNumber: employeeForm.phone,
+      email: employeeForm.email,
+      jobTitle: employeeForm.jobTitle,
+      jobDivision: employeeForm.jobDivision,
+      empStatus: employeeForm.status,
+      isHR: false,
+      lasCheck: "-",
+      timeOff: 10,
+    });
     closeDialog();
+    router.push("/employees");
+  } catch (e) {
+    console.error("Error creating employee:", e);
   }
 };
 

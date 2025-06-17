@@ -222,7 +222,7 @@
 
 <script setup>
 import { mdiAt, mdiCalendar, mdiClose, mdiLogout, mdiPhone } from "@mdi/js";
-import { reactive, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useRules } from "vuetify/labs/rules";
 import { VDateInput } from "vuetify/labs/VDateInput";
@@ -239,7 +239,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const auth = getAuth();
 const route = useRoute();
-const id = route.query.id;
+const id = computed(() => route.query.id);
 const fullName = route.query.fullName;
 const firstName = route.query.firstName;
 const lastName = route.query.lastName;
@@ -323,8 +323,12 @@ const closeDialog = () => {
 };
 
 const confirmEdit = async () => {
+  if (!id.value) {
+    alert("Employee ID not found. Cannot update profile.");
+    return;
+  }
   if (isValid.value) {
-    await updateDoc(doc(db, "employees", route.query.id), {
+    await updateDoc(doc(db, "employees", id.value), {
       firstName: profileForm.firstName,
       lastName: profileForm.lastName,
       dateofBirth: profileForm.dateOfBirth,

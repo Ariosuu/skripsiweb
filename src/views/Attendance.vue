@@ -60,7 +60,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import {
   mdiChevronRight,
   mdiLoginVariant,
@@ -85,6 +85,7 @@ import {
   orderBy,
   limit,
   doc,
+  getDoc,
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { signOut } from "firebase/auth";
@@ -98,6 +99,8 @@ const ID = ref();
 const newAttendance = ref([]);
 const attendanceRecords = ref([]);
 const lastCheck = ref();
+const currentDate = ref(new Date());
+const checkDate = ref();
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
@@ -130,6 +133,13 @@ onAuthStateChanged(auth, (user) => {
     });
   }
 });
+
+onMounted(() => {
+  checkDate.value = new Date().toLocaleDateString("en-US");
+  currentDate.value = new Date(); // Buat ngeset date ke hari ini tiap kali mounted
+  console.log("Current date set to:", checkDate.value);
+});
+
 const formatDate = () => {
   const date = new Date();
   const day = String(date.getDate()).padStart(2, "0");
@@ -147,22 +157,39 @@ const formatTime = (date) => {
 };
 
 const clockIn = () => {
-  const now = new Date();
-  const time = formatTime(now);
-  const hour = now.getHours();
-  const minutes = now.getMinutes();
+  if (verification()) {
+    console.log("You have already clocked in today.");
+    return;
+  } else {
+    const now = new Date();
+    const time = formatTime(now);
+    const hour = now.getHours();
+    const minutes = now.getMinutes();
 
-  const timeDecimal = hour + minutes / 60;
+    const timeDecimal = hour + minutes / 60;
 
-  const status = timeDecimal > 9 ? "Late" : "On Time";
+    const status = timeDecimal > 9 ? "Late" : "On Time";
 
-  newAttendance.value.push({
-    date: formatDate(),
-    clockedIn: time,
-    clockedOut: "-",
-    status,
-  });
-  recordData();
+    newAttendance.value.push({
+      date: formatDate(),
+      clockedIn: time,
+      clockedOut: "-",
+      status,
+    });
+    recordData();
+  }
+};
+
+const verification = async () => {
+  if (!lastCheck.value) return false; // No lastCheck, so allow clock-in
+
+  const docRef = doc(db, "employees", ID.value, "attendance", lastCheck.value);
+  const docSnap = await getDoc(docRef);
+
+  if (!docSnap.exists()) return false; // No such doc, allow clock-in
+
+  const lastDate = docSnap.data().date;
+  return lastDate === checkDate.value;
 };
 
 const clockOut = async () => {

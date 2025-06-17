@@ -18,11 +18,11 @@
       items-per-page="-1"
     >
       <template v-slot:item.from="{ value }">
-        {{ value.toLocaleDateString() }}
+        {{ value }}
       </template>
 
       <template v-slot:item.to="{ value }">
-        {{ value.toLocaleDateString() }}
+        {{ value }}
       </template>
 
       <template v-slot:item.view="{ item }">
@@ -134,15 +134,65 @@
 </template>
 
 <script setup>
-import { mdiCalendar, mdiClose, mdiEye, mdiLogout } from "@mdi/js";
-import { reactive, ref } from "vue";
+import {
+  mdiCalendar,
+  mdiClose,
+  mdiEye,
+  mdiLogout,
+  mdiFilter,
+  mdiUpload,
+} from "@mdi/js";
+import { reactive, ref, onMounted, computed, watch } from "vue";
 import { VDateInput } from "vuetify/labs/VDateInput";
+import { VFileUpload } from "vuetify/labs/VFileUpload";
 import { useRules } from "vuetify/labs/rules";
+import { db, projectAuth } from "@/firebase/config";
+import {
+  collection,
+  getDocs,
+  updateDoc,
+  addDoc,
+  onSnapshot,
+  doc,
+} from "firebase/firestore";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 
 const requestDialog = ref(false);
 const isValid = ref(false);
 const rules = useRules();
 const leaveType = ["Sick", "Family", "Maternity"];
+const reqRef = collection(db, "leaves");
+const request = ref([]);
+
+const requestForm = reactive({
+  name: "",
+  position: "",
+  type: null,
+  from: new Date(),
+  to: new Date(),
+  notes: "",
+  _index: null,
+  status: "Pending",
+});
+
+const unsubscribe = onSnapshot(reqRef, (snapshot) => {
+  let docs = [];
+  snapshot.docs.forEach((doc) => {
+    docs.push({ ...doc.data(), id: doc.id });
+  });
+
+  const formattedDocs = docs.map((item) => {
+    const newItem = { ...item };
+    if (newItem.from && newItem.from.toDate) {
+      newItem.from = newItem.from.toDate().toLocaleDateString();
+    }
+    if (newItem.to && newItem.to.toDate) {
+      newItem.to = newItem.to.toDate().toLocaleDateString();
+    }
+    return newItem;
+  });
+  request.value = formattedDocs.filter((item) => item.status === "Pending");
+});
 
 const headers = [
   {
@@ -165,30 +215,6 @@ const headers = [
   },
 ];
 
-const request = ref([
-  {
-    name: "Daniel Garyo",
-    position: "Team Leader",
-    type: "Family",
-    from: new Date(),
-    to: new Date(),
-    status: "Pending",
-    notes: "Eric stole my food",
-  },
-]);
-
-const requestForm = reactive({
-  name: "",
-  position: "",
-  type: null,
-  fromTo: [], // Ini gak kepake harusnya disini
-  from: new Date(),
-  to: new Date(),
-  notes: "",
-  reason: "", // ini juga gak kepake i think
-  status: "Pending",
-});
-
 const viewRequest = (x) => {
   requestForm.name = request.value[x].name;
   requestForm.position = request.value[x].position;
@@ -196,7 +222,7 @@ const viewRequest = (x) => {
   requestForm.from = request.value[x].from;
   requestForm.to = request.value[x].to;
   requestForm.notes = request.value[x].notes;
-
+  requestForm._index = x;
   console.log(requestForm);
   requestDialog.value = true;
 };
@@ -211,17 +237,23 @@ const closeDialog = () => {
   requestDialog.value = false;
 };
 
-const decision = (x) => {
+const decision = async (x) => {
   if (isValid.value) {
-    if (x == "Approve") {
-      // logic for approve
+    const idx = requestForm._index;
+    const docId = request.value[idx]?.id;
+    if (docId) {
+      const docRef = doc(db, "leaves", docId);
+      if (x == "Approve") {
+        await updateDoc(docRef, {
+          status: "Approved",
+        });
+      }
+      if (x == "Reject") {
+        await updateDoc(docRef, {
+          status: "Rejected",
+        });
+      }
     }
-    closeDialog();
-  }
-
-  if (x == "Reject") {
-    // logic for reject
-
     closeDialog();
   }
 };

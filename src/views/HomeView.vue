@@ -11,7 +11,7 @@
     <v-sheet
       color="#207a9a"
       class="d-flex align-center pa-4 pl-10"
-      height="200"
+      height="170"
     >
       <v-avatar size="100" rounded="0" class="mr-4"> </v-avatar>
       <div class="white--text">
@@ -108,9 +108,9 @@
       </v-col>
 
       <v-col cols="8" class="pa-2">
-        <v-card class="d-flex align-center justify-center">
+        <v-card height="450" class="overflow-y-auto">
           <v-card-text>
-            <v-calendar type="month"></v-calendar>
+            <v-date-picker width="100%" v-model="currentDate"></v-date-picker>
           </v-card-text>
         </v-card>
       </v-col>
@@ -198,6 +198,7 @@ const { user } = getUser();
 const lastClockInTime = ref(null);
 const reset = ref(false);
 const items = ref([]);
+const currentDate = ref(new Date());
 
 const img = [
   {
@@ -407,4 +408,18 @@ const formattedDate = computed(() => {
   }
   return "N/A";
 });
+
+onMounted(() => {
+  currentDate.value = new Date(); // Buat ngeset date ke hari ini tiap kali mounted
+});
 </script>
+
+<style scoped>
+:deep(.v-picker-title) {
+  display: none;
+}
+
+:deep(.v-date-picker-month__days) {
+  pointer-events: none;
+}
+</style>

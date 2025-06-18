@@ -10,34 +10,63 @@
             <v-card-title>{{ userName }}</v-card-title>
             <v-card-subtitle>{{ userPos }}</v-card-subtitle>
           </v-col>
-          <v-col cols="1">
-            <v-btn variant="text" block base-color="#46494C" @click="clockIn">
-              <v-icon
-                color="#1985A1"
-                slot="prepend-icon"
-                :icon="mdiLoginVariant"
-                :size="30"
-              />
-              <div class="pa-2 font-weight-medium" slot="default">CLOCK IN</div>
-            </v-btn>
-          </v-col>
-          <v-col cols="1">
-            <v-btn variant="text" block base-color="#46494C">
-              <v-icon
-                color="#1985A1"
-                slot="prepend-icon"
-                :icon="mdiLoginVariant"
-                :size="30"
-              />
-              <div
-                class="pa-2 font-weight-medium"
-                slot="default"
-                @click="clockOut"
-              >
-                CLOCK OUT
-              </div>
-            </v-btn>
-          </v-col>
+          <v-tooltip
+            text="You have already clocked in today"
+            location="top"
+            :disabled="displayClockInMessage === '-'"
+          >
+            <template v-slot:activator="{ props }">
+              <v-col cols="1" v-bind="props">
+                <v-btn
+                  variant="text"
+                  block
+                  base-color="#46494C"
+                  @click="clockIn"
+                  :disabled="displayClockInMessage !== '-'"
+                >
+                  <v-icon
+                    color="#1985A1"
+                    slot="prepend-icon"
+                    :icon="mdiLoginVariant"
+                    :size="30"
+                  />
+                  <div class="pa-2 font-weight-medium" slot="default">
+                    CLOCK IN
+                  </div>
+                </v-btn>
+              </v-col>
+            </template>
+          </v-tooltip>
+          <v-tooltip
+            text="You have already clocked in today"
+            location="top"
+            :disabled="displayClockInMessage === '-'"
+          >
+            <template v-slot:activator="{ props }">
+              <v-col cols="1" v-bind="props">
+                <v-btn
+                  variant="text"
+                  block
+                  base-color="#46494C"
+                  :disabled="displayClockOutMessage !== '-'"
+                >
+                  <v-icon
+                    color="#1985A1"
+                    slot="prepend-icon"
+                    :icon="mdiLoginVariant"
+                    :size="30"
+                  />
+                  <div
+                    class="pa-2 font-weight-medium"
+                    slot="default"
+                    @click="clockOut"
+                  >
+                    CLOCK OUT
+                  </div>
+                </v-btn>
+              </v-col>
+            </template>
+          </v-tooltip>
         </v-row>
       </v-col>
     </v-card>
@@ -102,6 +131,8 @@ const attendanceRecords = ref([]);
 const lastCheck = ref();
 const currentDate = ref(new Date());
 const checkDate = ref();
+const displayClockInMessage = ref();
+const displayClockOutMessage = ref();
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
@@ -133,12 +164,6 @@ onAuthStateChanged(auth, (user) => {
       }
     });
   }
-});
-
-onMounted(() => {
-  checkDate.value = new Date().toLocaleDateString("en-US");
-  currentDate.value = new Date(); // Buat ngeset date ke hari ini tiap kali mounted
-  console.log("Current date set to:", checkDate.value);
 });
 
 const formatDate = () => {
@@ -214,8 +239,8 @@ const clockOut = async () => {
     }
   } catch (error) {
     console.error("Error clocking out:", error);
+    window.refresh();
   }
-  window.location.reload();
 };
 
 const recordData = () => {
@@ -225,11 +250,17 @@ const recordData = () => {
     clockedIn: lastRecord.clockedIn,
     clockedOut: lastRecord.clockedOut,
     status: lastRecord.status,
-  }).then((docRef) => {
+  }).then(async (docRef) => {
     lastCheck.value = docRef.id;
     updateDoc(doc(db, "employees", ID.value), {
       lastCheck: lastCheck.value,
     });
+    const attendanceDoc = await getDoc(
+      doc(db, "employees", ID.value, "attendance", docRef.id)
+    );
+    if (attendanceDoc.exists()) {
+      displayClockInMessage.value = attendanceDoc.data().clockedIn;
+    }
   });
 };
 
@@ -239,4 +270,31 @@ const headers = ref([
   { title: "Clocked Out", key: "clockedOut", align: "start", sortable: false },
   { title: "Status", key: "status", align: "start", sortable: false },
 ]);
+
+onMounted(async () => {
+  checkDate.value = new Date().toLocaleDateString("en-US");
+  currentDate.value = new Date(); // Buat ngeset date ke hari ini tiap kali mounted
+
+  // Wait until id.value is set before querying attendance
+  const waitForId = async () => {
+    while (!ID.value) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    const attendanceRef = collection(db, "employees", ID.value, "attendance");
+    const q = query(attendanceRef, where("date", "==", formatDate()));
+    getDocs(q).then((snapshot) => {
+      if (!snapshot.empty) {
+        const docData = snapshot.docs[0].data();
+        displayClockInMessage.value = docData.clockedIn;
+        displayClockOutMessage.value = docData.clockedOut;
+      } else {
+        displayClockInMessage.value = "-";
+        displayClockOutMessage.value = "-";
+      }
+    });
+    console.log("Current date set to:", checkDate.value);
+  };
+
+  waitForId();
+});
 </script>

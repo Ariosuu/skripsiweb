@@ -1,15 +1,4 @@
 <template>
-  <!-- <v-app-bar color="#C5C3C6" flat height="64">
-    <p color="#C5C3C6" class="text-h6 font-weight-bold pl-8">Home</p>
-    <v-spacer></v-spacer>
-    <v-avatar color="surface-variant">
-      <span class="text-subtitle-1">
-        {{ firstName ? firstName[0] : "" }}{{ lastName ? lastName[0] : "" }}
-      </span>
-    </v-avatar>
-    <v-btn :icon="mdiLogout" @click="handleLogout" to="/login"> </v-btn>
-  </v-app-bar> -->
-
   <v-container fluid class="pa-0">
     <!-- blue bar -->
     <v-sheet
@@ -76,7 +65,7 @@
         <v-card class="pa-4 h-auto">
           <v-row no-gutters>
             <v-tooltip
-              text="You have already checked in today"
+              text="You have already clocked in today"
               location="top"
               :disabled="displayClockInMessage === '-'"
             >
@@ -105,7 +94,7 @@
             </v-tooltip>
             <v-divider vertical />
             <v-tooltip
-              text="You have already checked out today"
+              text="You have already clocked out today"
               location="top"
               :disabled="displayClockOutMessage === '-'"
             >

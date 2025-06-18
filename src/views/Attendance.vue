@@ -52,6 +52,7 @@
           hide-default-footer
           class="px-4"
           height="600"
+          items-per-page="-1"
         >
         </v-data-table>
       </v-col>

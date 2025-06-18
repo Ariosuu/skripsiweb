@@ -9,11 +9,24 @@
               <span style="color: #1985a1">{{ leaveRemaining }} Days</span>
             </span>
 
-            <span>
-              <v-btn color="#1985A1" flat @click="openDialogRequest()">
-                Request Leave
-              </v-btn>
-            </span>
+            <v-tooltip
+              text="You have no more leave days"
+              location="left"
+              :disabled="leaveRemaining != 0"
+            >
+              <template v-slot:activator="{ props }">
+                <span v-bind="props">
+                  <v-btn
+                    color="#1985A1"
+                    flat
+                    @click="openDialogRequest()"
+                    :disabled="leaveRemaining == 0"
+                  >
+                    Request Leave
+                  </v-btn>
+                </span>
+              </template>
+            </v-tooltip>
           </div>
         </v-card-title>
       </v-card>

@@ -81,6 +81,7 @@
                 size="x-large"
                 block
                 base-color="#46494C"
+                :disabled="displayClockInMessage !== '-'"
                 @click="clockIn"
               >
                 <v-icon
@@ -96,7 +97,13 @@
             </v-col>
             <v-divider vertical />
             <v-col cols="6">
-              <v-btn variant="plain" size="x-large" block @click="clockOut">
+              <v-btn
+                variant="plain"
+                size="x-large"
+                block
+                @click="clockOut"
+                :disabled="displayClockOutMessage !== '-'"
+              >
                 <v-icon
                   color="#1985A1"
                   slot="prepend-icon"
@@ -114,7 +121,7 @@
             <v-col cols="12" class="text-center">
               Clocked in at: <br />
               <strong class="text-h4">
-                {{ displayClockInMessage }}
+                {{ displayClockInMessage ? displayClockInMessage : "-" }}
               </strong>
             </v-col>
           </v-row>
@@ -216,6 +223,8 @@ const items = ref([]);
 const currentDate = ref(new Date());
 const checkDate = ref();
 const lastCheck = ref();
+const displayClockInMessage = ref();
+const displayClockOutMessage = ref();
 
 const img = [
   {
@@ -270,8 +279,6 @@ onAuthStateChanged(auth, async (user) => {
         id.value = currentUser.id;
         leaveRemaining.value = currentUser.timeOff;
         lastCheck.value = currentUser.lastCheck;
-
-        await fetchLastClockIn();
       } else {
         console.error("User not found in the database.");
       }
@@ -303,8 +310,9 @@ const formatDate = () => {
   return `${day}/${month}/${year}`;
 };
 
-const clockIn = () => {
-  if (verification()) {
+const clockIn = async () => {
+  const alreadyClockedIn = await verification();
+  if (alreadyClockedIn) {
     console.log("You have already clocked in today.");
     return;
   } else {
@@ -314,7 +322,6 @@ const clockIn = () => {
     const minutes = now.getMinutes();
 
     const timeDecimal = hour + minutes / 60;
-
     const status = timeDecimal > 9 ? "Late" : "On Time";
 
     newAttendance.value.push({
@@ -328,15 +335,11 @@ const clockIn = () => {
 };
 
 const verification = async () => {
-  if (!lastCheck.value) return false; // No lastCheck, so allow clock-in
-
-  const docRef = doc(db, "employees", id.value, "attendance", lastCheck.value);
-  const docSnap = await getDoc(docRef);
-
-  if (!docSnap.exists()) return false; // No such doc, allow clock-in
-
-  const lastDate = docSnap.data().date;
-  return lastDate === checkDate.value;
+  if (!id.value) return false;
+  const attendanceRef = collection(db, "employees", id.value, "attendance");
+  const q = query(attendanceRef, where("date", "==", formatDate()));
+  const snapshot = await getDocs(q);
+  return !snapshot.empty;
 };
 
 const clockOut = async () => {
@@ -375,35 +378,19 @@ const recordData = () => {
     clockedIn: lastRecord.clockedIn,
     clockedOut: lastRecord.clockedOut,
     status: lastRecord.status,
-  }).then((docRef) => {
+  }).then(async (docRef) => {
     lastCheck.value = docRef.id;
-    updateDoc(doc(db, "employees", id.value), {
+    await updateDoc(doc(db, "employees", id.value), {
       lastCheck: lastCheck.value,
     });
+    const attendanceDoc = await getDoc(
+      doc(db, "employees", id.value, "attendance", docRef.id)
+    );
+    if (attendanceDoc.exists()) {
+      displayClockInMessage.value = attendanceDoc.data().clockedIn;
+    }
   });
 };
-
-const fetchLastClockIn = async () => {
-  if (id.value && lastCheck.value) {
-    const attendanceDocRef = doc(
-      db,
-      "employees",
-      id.value,
-      "attendance",
-      lastCheck.value
-    );
-    const attendanceDoc = await getDoc(attendanceDocRef);
-    if (attendanceDoc.exists()) {
-      const data = attendanceDoc.data();
-      const lastClockedIn = data.clockedIn;
-      lastClockInTime.value = lastClockedIn;
-    }
-  }
-};
-
-const displayClockInMessage = computed(() => {
-  return lastClockInTime.value ? lastClockInTime.value : "-";
-});
 
 // TRAINING CODE
 
@@ -448,10 +435,30 @@ const formattedDate = computed(() => {
   return "N/A";
 });
 
-onMounted(() => {
+onMounted(async () => {
   checkDate.value = new Date().toLocaleDateString("en-US");
   currentDate.value = new Date(); // Buat ngeset date ke hari ini tiap kali mounted
-  console.log("Current date set to:", checkDate.value);
+
+  // Wait until id.value is set before querying attendance
+  const waitForId = async () => {
+    while (!id.value) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    const attendanceRef = collection(db, "employees", id.value, "attendance");
+    const q = query(attendanceRef, where("date", "==", formatDate()));
+    getDocs(q).then((snapshot) => {
+      if (!snapshot.empty) {
+        const docData = snapshot.docs[0].data();
+        displayClockInMessage.value = docData.clockedIn;
+        displayClockOutMessage.value = docData.clockedOut;
+      } else {
+        displayClockInMessage.value = "-";
+      }
+    });
+    console.log("Current date set to:", checkDate.value);
+  };
+
+  waitForId();
 });
 </script>
 

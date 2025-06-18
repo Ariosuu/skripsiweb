@@ -157,8 +157,9 @@ const formatTime = (date) => {
   });
 };
 
-const clockIn = () => {
-  if (verification()) {
+const clockIn = async () => {
+  const alreadyClockedIn = await verification();
+  if (alreadyClockedIn) {
     console.log("You have already clocked in today.");
     return;
   } else {
@@ -168,7 +169,6 @@ const clockIn = () => {
     const minutes = now.getMinutes();
 
     const timeDecimal = hour + minutes / 60;
-
     const status = timeDecimal > 9 ? "Late" : "On Time";
 
     newAttendance.value.push({
@@ -182,15 +182,11 @@ const clockIn = () => {
 };
 
 const verification = async () => {
-  if (!lastCheck.value) return false; // No lastCheck, so allow clock-in
-
-  const docRef = doc(db, "employees", ID.value, "attendance", lastCheck.value);
-  const docSnap = await getDoc(docRef);
-
-  if (!docSnap.exists()) return false; // No such doc, allow clock-in
-
-  const lastDate = docSnap.data().date;
-  return lastDate === checkDate.value;
+  if (!ID.value) return false;
+  const attendanceRef = collection(db, "employees", ID.value, "attendance");
+  const q = query(attendanceRef, where("date", "==", formatDate()));
+  const snapshot = await getDocs(q);
+  return !snapshot.empty;
 };
 
 const clockOut = async () => {

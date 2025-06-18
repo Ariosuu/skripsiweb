@@ -3,6 +3,7 @@
     <p color="#C5C3C6" class="text-h6 font-weight-bold pl-8">{{ routeName }}</p>
     <v-spacer></v-spacer>
     <v-btn
+      icon
       :to="{
         name: 'Employee Profile',
         query: {
@@ -25,7 +26,8 @@
         </span>
       </v-avatar>
     </v-btn>
-    <v-btn :icon="mdiLogout" @click="handleLogout" to="/login"> </v-btn>
+    <v-btn ripple="false" :icon="mdiLogout" @click="handleLogout" to="/login">
+    </v-btn>
   </v-app-bar>
 </template>
 
@@ -93,8 +95,6 @@ onAuthStateChanged(auth, async (user) => {
         phoneNumber.value = currentUser.phoneNumber;
         dateOfBirth.value = currentUser.dateofBirth;
         id.value = currentUser.id;
-        leaveRemaining.value = currentUser.timeOff;
-        lastCheck.value = currentUser.lastCheck;
       } else {
         console.error("User not found in the database.");
       }

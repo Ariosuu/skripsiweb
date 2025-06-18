@@ -248,8 +248,8 @@ const decision = async (x) => {
   if (isValid.value) {
     const idx = requestForm._index;
     const docId = ReimList.value[idx]?.id;
+    const docRef = doc(db, "reimburse", docId);
     if (docId) {
-      const docRef = doc(db, "reimburse", docId);
       let approvedAmount = requestForm.approved;
       if (typeof approvedAmount === "string") {
         approvedAmount = Number(approvedAmount);
@@ -259,12 +259,13 @@ const decision = async (x) => {
           approved: approvedAmount,
           status: "Approved",
         });
-      } else if (x === "Reject") {
-        await updateDoc(docRef, {
-          approved: approvedAmount,
-          status: "Rejected",
-        });
       }
+    }
+    if (x === "Reject") {
+      await updateDoc(docRef, {
+        approved: 0,
+        status: "Rejected",
+      });
     }
     closeDialog();
   }

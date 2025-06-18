@@ -75,46 +75,62 @@
       <v-col cols="4" class="pa-2">
         <v-card class="pa-4 h-auto">
           <v-row no-gutters>
-            <v-col cols="6">
-              <v-btn
-                variant="plain"
-                size="x-large"
-                block
-                base-color="#46494C"
-                :disabled="displayClockInMessage !== '-'"
-                @click="clockIn"
-              >
-                <v-icon
-                  color="#1985A1"
-                  slot="prepend-icon"
-                  :icon="mdiLoginVariant"
-                  :size="30"
-                />
-                <div class="pa-2 text-h5 font-weight-medium" slot="default">
-                  CLOCK IN
-                </div>
-              </v-btn>
-            </v-col>
+            <v-tooltip
+              text="You have already checked in today"
+              location="top"
+              :disabled="displayClockInMessage === '-'"
+            >
+              <template v-slot:activator="{ props }">
+                <v-col cols="6" v-bind="props">
+                  <v-btn
+                    variant="plain"
+                    size="x-large"
+                    block
+                    base-color="#46494C"
+                    :disabled="displayClockInMessage !== '-'"
+                    @click="clockIn"
+                  >
+                    <v-icon
+                      color="#1985A1"
+                      slot="prepend-icon"
+                      :icon="mdiLoginVariant"
+                      :size="30"
+                    />
+                    <div class="pa-2 text-h5 font-weight-medium" slot="default">
+                      CLOCK IN
+                    </div>
+                  </v-btn>
+                </v-col>
+              </template>
+            </v-tooltip>
             <v-divider vertical />
-            <v-col cols="6">
-              <v-btn
-                variant="plain"
-                size="x-large"
-                block
-                @click="clockOut"
-                :disabled="displayClockOutMessage !== '-'"
-              >
-                <v-icon
-                  color="#1985A1"
-                  slot="prepend-icon"
-                  :icon="mdiLogoutVariant"
-                  :size="30"
-                />
-                <div class="pa-2 text-h5 font-weight-medium" slot="default">
-                  CLOCK OUT
-                </div>
-              </v-btn>
-            </v-col>
+            <v-tooltip
+              text="You have already checked out today"
+              location="top"
+              :disabled="displayClockOutMessage === '-'"
+            >
+              <template v-slot:activator="{ props }">
+                <v-col cols="6" v-bind="props">
+                  <v-btn
+                    variant="plain"
+                    size="x-large"
+                    block
+                    @click="clockOut"
+                    :disabled="displayClockOutMessage !== '-'"
+                  >
+                    <v-icon
+                      color="#1985A1"
+                      slot="prepend-icon"
+                      :icon="mdiLogoutVariant"
+                      :size="30"
+                    />
+                    <div class="pa-2 text-h5 font-weight-medium" slot="default">
+                      CLOCK OUT
+                    </div>
+                  </v-btn>
+                </v-col>
+              </template>
+            </v-tooltip>
           </v-row>
           <v-divider class="my-2"></v-divider>
           <v-row>
@@ -453,6 +469,7 @@ onMounted(async () => {
         displayClockOutMessage.value = docData.clockedOut;
       } else {
         displayClockInMessage.value = "-";
+        displayClockOutMessage.value = "-";
       }
     });
     console.log("Current date set to:", checkDate.value);

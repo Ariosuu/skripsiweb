@@ -211,7 +211,7 @@ const reimburseDialog = ref(false);
 const isValid = ref(false);
 const isNew = ref(false);
 const total = computed(() =>
-  newReim.value.reduce((sum, item) => sum + (Number(item.bill) || 0), 0)
+  newReim.value.reduce((sum, item) => sum + (Number(item.approved) || 0), 0)
 );
 const rules = useRules();
 const reqName = ref();

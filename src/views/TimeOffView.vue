@@ -51,11 +51,11 @@
             </template>
 
             <template v-slot:item.from="{ value }">
-              {{ value }}
+              {{ value instanceof Date ? value.toLocaleDateString() : value }}
             </template>
 
             <template v-slot:item.to="{ value }">
-              {{ value }}
+              {{ value instanceof Date ? value.toLocaleDateString() : value }}
             </template>
 
             <template v-slot:item.status="{ value }">
@@ -214,10 +214,10 @@ onSnapshot(reqRef, (snapshot) => {
   const formattedDocs = docs.map((item) => {
     const newItem = { ...item };
     if (newItem.from && newItem.from.toDate) {
-      newItem.from = newItem.from.toDate().toLocaleDateString();
+      newItem.from = newItem.from.toDate();
     }
     if (newItem.to && newItem.to.toDate) {
-      newItem.to = newItem.to.toDate().toLocaleDateString();
+      newItem.to = newItem.to.toDate();
     }
     return newItem;
   });
@@ -333,10 +333,35 @@ const openDialogRequest = () => {
   dialog.value = true;
 };
 
-const openDialogDetail = (x) => {
+import { doc } from "firebase/firestore";
+
+const openDialogDetail = async (x) => {
   isDetail.value = true;
   request.value = timeRequest.value[x];
   dialog.value = true;
+  if (
+    timeRequest.value[x].days !== 0 &&
+    timeRequest.value[x].status !== "Pending"
+  ) {
+    leaveRemaining.value = leaveRemaining.value + timeRequest.value[x].days;
+    await getDocs(colRef).then((snapshot) => {
+      snapshot.docs.forEach(async (docSnap) => {
+        const data = docSnap.data();
+        if (
+          (auth.currentUser && data.uid === auth.currentUser.uid) ||
+          (auth.currentUser && data.email === auth.currentUser.email)
+        ) {
+          await updateDoc(docSnap.ref, { timeOff: leaveRemaining.value });
+        }
+      });
+    });
+    const leaveId = timeRequest.value[x].id;
+    if (leaveId) {
+      const leaveDocRef = doc(db, "leaves", leaveId);
+      await updateDoc(leaveDocRef, { days: 0 });
+      timeRequest.value[x].days = 0;
+    }
+  }
 };
 
 const closeDialog = () => {
@@ -401,6 +426,7 @@ const test = () => {
       to: request.value.to,
       notes: request.value.notes,
       status: request.value.status,
+      days: leaveDaysUsed(),
     });
     closeDialog();
   }

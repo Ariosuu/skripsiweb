@@ -9,11 +9,11 @@
       items-per-page="-1"
     >
       <template v-slot:item.from="{ value }">
-        {{ value }}
+        {{ value instanceof Date ? value.toLocaleDateString() : value }}
       </template>
 
       <template v-slot:item.to="{ value }">
-        {{ value }}
+        {{ value instanceof Date ? value.toLocaleDateString() : value }}
       </template>
 
       <template v-slot:item.view="{ item }">
@@ -147,6 +147,10 @@ import {
   doc,
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import { inject } from "vue";
+const props = defineProps({
+  timeOffViewRef: Object,
+});
 
 const requestDialog = ref(false);
 const isValid = ref(false);
@@ -175,10 +179,10 @@ const unsubscribe = onSnapshot(reqRef, (snapshot) => {
   const formattedDocs = docs.map((item) => {
     const newItem = { ...item };
     if (newItem.from && newItem.from.toDate) {
-      newItem.from = newItem.from.toDate().toLocaleDateString();
+      newItem.from = newItem.from.toDate();
     }
     if (newItem.to && newItem.to.toDate) {
-      newItem.to = newItem.to.toDate().toLocaleDateString();
+      newItem.to = newItem.to.toDate();
     }
     return newItem;
   });
@@ -236,6 +240,7 @@ const decision = async (x) => {
       if (x == "Approve") {
         await updateDoc(docRef, {
           status: "Approved",
+          days: 0,
         });
       }
       if (x == "Reject") {
